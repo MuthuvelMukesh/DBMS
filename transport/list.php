@@ -9,7 +9,7 @@ $offset = ($page - 1) * $limit;
 
 // Fetch all transport assignments
 $stmt = $conn->prepare("
-    SELECT ta.id, ta.student_id, ta.transport_id, ta.pickup_stop, ta.join_date, ta.status,
+    SELECT ta.id, ta.student_id, ta.transport_id, ta.pickup_stop, ta.assignment_date as join_date, ta.status,
            s.admission_no, s.full_name, c.class_name,
            t.route_name, t.vehicle_no, t.driver_name
     FROM transport_assignments ta

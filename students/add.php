@@ -58,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 INSERT INTO students (admission_no, full_name, dob, gender, class_id, section, parent_name, contact, address, photo, status)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active')
             ");
-            $stmt->bind_param("ssssiisss", $admission_no, $full_name, $dob, $gender, $class_id, $section, $parent_name, $contact, $address, $photo);
+            $stmt->bind_param("ssssisssss", $admission_no, $full_name, $dob, $gender, $class_id, $section, $parent_name, $contact, $address, $photo);
 
             if ($stmt->execute()) {
                 $success = 'Student added successfully! Admission No: ' . $admission_no;

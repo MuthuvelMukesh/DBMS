@@ -76,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 SET full_name = ?, dob = ?, gender = ?, class_id = ?, section = ?, parent_name = ?, contact = ?, address = ?, photo = ?, status = ?
                 WHERE id = ?
             ");
-            $stmt->bind_param("sssiisspsi", $full_name, $dob, $gender, $class_id, $section, $parent_name, $contact, $address, $photo, $status, $student_id);
+            $stmt->bind_param("sssissssssi", $full_name, $dob, $gender, $class_id, $section, $parent_name, $contact, $address, $photo, $status, $student_id);
 
             if ($stmt->execute()) {
                 $success = 'Student updated successfully!';
