@@ -15,7 +15,7 @@ $role = $_SESSION['role'];
             <span class="sidebar-text">SchoolMS</span>
         </h5>
     </div>
-    <nav class="navbar navbar-expand-lg navbar-dark w-100 p-0 flex-column">
+    <nav class="navbar navbar-expand-lg navbar-dark w-100 p-0 flex-column">     
         <ul class="navbar-nav flex-column w-100">
             <li class="nav-item">
                 <a class="nav-link text-white py-3 px-4" href="<?php echo BASE_URL; ?>dashboard.php">
@@ -25,6 +25,7 @@ $role = $_SESSION['role'];
             </li>
 
             <!-- Student Management -->
+            <?php if (in_array($role, ['admin', 'teacher'])): ?>
             <li class="nav-item">
                 <a class="nav-link text-white py-3 px-4" data-bs-toggle="collapse" href="#studentMenu" role="button">
                     <i class="fas fa-users"></i>
@@ -41,6 +42,7 @@ $role = $_SESSION['role'];
                     </ul>
                 </div>
             </li>
+            <?php endif; ?>
 
             <!-- Staff Management -->
             <?php if (in_array($role, ['admin'])): ?>
@@ -63,6 +65,7 @@ $role = $_SESSION['role'];
             <?php endif; ?>
 
             <!-- Attendance Management -->
+            <?php if (in_array($role, ['admin', 'teacher', 'parent'])): ?>
             <li class="nav-item">
                 <a class="nav-link text-white py-3 px-4" data-bs-toggle="collapse" href="#attendanceMenu" role="button">
                     <i class="fas fa-clipboard-list"></i>
@@ -70,9 +73,11 @@ $role = $_SESSION['role'];
                 </a>
                 <div class="collapse" id="attendanceMenu">
                     <ul class="navbar-nav flex-column ms-3">
+                        <?php if (in_array($role, ['admin', 'teacher'])): ?>
                         <li class="nav-item">
                             <a class="nav-link text-white py-2 px-4" href="<?php echo BASE_URL; ?>attendance/mark.php">Mark Attendance</a>
                         </li>
+                        <?php endif; ?>
                         <li class="nav-item">
                             <a class="nav-link text-white py-2 px-4" href="<?php echo BASE_URL; ?>attendance/report.php">Monthly Report</a>
                         </li>
@@ -82,8 +87,10 @@ $role = $_SESSION['role'];
                     </ul>
                 </div>
             </li>
+            <?php endif; ?>
 
             <!-- Fees Management -->
+            <?php if (in_array($role, ['admin', 'parent'])): ?>
             <li class="nav-item">
                 <a class="nav-link text-white py-3 px-4" data-bs-toggle="collapse" href="#feesMenu" role="button">
                     <i class="fas fa-money-bill-wave"></i>
@@ -94,17 +101,21 @@ $role = $_SESSION['role'];
                         <li class="nav-item">
                             <a class="nav-link text-white py-2 px-4" href="<?php echo BASE_URL; ?>fees/list.php">View All</a>
                         </li>
+                        <?php if (in_array($role, ['admin'])): ?>
                         <li class="nav-item">
                             <a class="nav-link text-white py-2 px-4" href="<?php echo BASE_URL; ?>fees/add.php">Add Fee</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-white py-2 px-4" href="<?php echo BASE_URL; ?>fees/collect.php">Collect Payment</a>
                         </li>
+                        <?php endif; ?>
                     </ul>
                 </div>
             </li>
+            <?php endif; ?>
 
             <!-- Exams Management -->
+            <?php if (in_array($role, ['admin', 'teacher'])): ?>
             <li class="nav-item">
                 <a class="nav-link text-white py-3 px-4" data-bs-toggle="collapse" href="#examsMenu" role="button">
                     <i class="fas fa-pen-square"></i>
@@ -115,14 +126,18 @@ $role = $_SESSION['role'];
                         <li class="nav-item">
                             <a class="nav-link text-white py-2 px-4" href="<?php echo BASE_URL; ?>exams/list.php">View All</a>
                         </li>
+                        <?php if (in_array($role, ['admin'])): ?>
                         <li class="nav-item">
                             <a class="nav-link text-white py-2 px-4" href="<?php echo BASE_URL; ?>exams/add.php">Add Exam</a>
                         </li>
+                        <?php endif; ?>
                     </ul>
                 </div>
             </li>
+            <?php endif; ?>
 
             <!-- Results Management -->
+            <?php if (in_array($role, ['admin', 'teacher', 'parent'])): ?>
             <li class="nav-item">
                 <a class="nav-link text-white py-3 px-4" data-bs-toggle="collapse" href="#resultsMenu" role="button">
                     <i class="fas fa-chart-bar"></i>
@@ -133,17 +148,21 @@ $role = $_SESSION['role'];
                         <li class="nav-item">
                             <a class="nav-link text-white py-2 px-4" href="<?php echo BASE_URL; ?>results/report.php">View Results</a>
                         </li>
+                        <?php if (in_array($role, ['admin', 'teacher'])): ?>
                         <li class="nav-item">
                             <a class="nav-link text-white py-2 px-4" href="<?php echo BASE_URL; ?>results/add.php">Add Results</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-white py-2 px-4" href="<?php echo BASE_URL; ?>results/marksheet.php">Marksheet</a>
                         </li>
+                        <?php endif; ?>
                     </ul>
                 </div>
             </li>
+            <?php endif; ?>
 
             <!-- Transport Management -->
+            <?php if (in_array($role, ['admin', 'staff'])): ?>
             <li class="nav-item">
                 <a class="nav-link text-white py-3 px-4" data-bs-toggle="collapse" href="#transportMenu" role="button">
                     <i class="fas fa-bus"></i>
@@ -163,8 +182,10 @@ $role = $_SESSION['role'];
                     </ul>
                 </div>
             </li>
+            <?php endif; ?>
 
             <!-- Hostel Management -->
+            <?php if (in_array($role, ['admin', 'staff'])): ?>
             <li class="nav-item">
                 <a class="nav-link text-white py-3 px-4" data-bs-toggle="collapse" href="#hostelMenu" role="button">
                     <i class="fas fa-home"></i>
@@ -187,6 +208,7 @@ $role = $_SESSION['role'];
                     </ul>
                 </div>
             </li>
+            <?php endif; ?>
         </ul>
     </nav>
 </div>

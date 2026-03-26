@@ -12,6 +12,26 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 $username = $_SESSION['username'];
 $role = $_SESSION['role'];
+
+// Role-Based Access Control (RBAC) Logic
+$permissions = [
+    'admin' => ['students', 'staff', 'attendance', 'fees', 'exams', 'results', 'transport', 'hostel', 'SchoolMS', 'profile.php', 'dashboard.php', 'logout.php'],
+    'teacher' => ['students', 'attendance', 'exams', 'results', 'SchoolMS', 'profile.php', 'dashboard.php', 'logout.php'],
+    'staff' => ['transport', 'hostel', 'SchoolMS', 'profile.php', 'dashboard.php', 'logout.php'],
+    'parent' => ['fees', 'attendance', 'results', 'SchoolMS', 'profile.php', 'dashboard.php', 'logout.php']
+];
+
+$current_script = basename($_SERVER['PHP_SELF']);
+$current_dir = basename(dirname($_SERVER['PHP_SELF']));
+$is_root_file = ($current_dir === 'SchoolMS' || $current_dir === 'htdocs' || $current_dir === ''); // Approximation for root
+
+if (!$is_root_file) {
+    if (!isset($permissions[$role]) || !in_array($current_dir, $permissions[$role])) {
+        // If they are not authorized for this directory module
+        header("Location: " . BASE_URL . "dashboard.php?error=Access Denied");
+        exit();
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
