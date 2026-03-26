@@ -83,161 +83,213 @@ $stmt->close();
 $hostelOccupancy = $totalRooms > 0 ? round(($occupiedRooms / $totalRooms) * 100, 1) : 0;
 ?>
 
-<h1 class="page-title"><i class="fas fa-chart-line"></i> Dashboard</h1>
+<div class="d-sm-flex align-items-center justify-content-between mb-4 mt-2">
+    <h1 class="page-title mb-0"><i class="fas fa-chart-line text-primary"></i> Dashboard</h1>
+    <a href="#" class="btn btn-sm btn-primary shadow-sm"><i class="fas fa-download fa-sm text-white-50"></i> Generate Report</a>
+</div>
 
-<div class="row mb-4">
+<div class="row">
     <!-- Total Students Card -->
-    <div class="col-md-6 col-lg-3 mb-3">
-        <div class="card border-0 shadow-sm h-100 bg-primary text-white">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-0 border-start border-primary border-4 shadow-sm h-100 py-2">
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="card-title mb-2">Total Students</h6>
-                        <h2 class="mb-0"><?php echo $totalStudents; ?></h2>
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1" style="font-size: 0.8rem; letter-spacing: 0.5px;">Total Students</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800" style="font-weight: 800; color: #5a5c69; font-size: 1.5rem;"><?php echo $totalStudents; ?></div>
                     </div>
-                    <i class="fas fa-users fa-3x opacity-50"></i>
+                    <div class="col-auto">
+                        <i class="fas fa-user-graduate fa-2x text-gray-300" style="color: #dddfeb;"></i>
+                    </div>
                 </div>
             </div>
-            <a href="students/list.php" class="card-footer bg-white text-primary text-decoration-none text-center py-2">View Details</a>
+            <a href="students/list.php" class="card-footer bg-transparent border-0 text-primary text-center pb-0 pt-0 text-decoration-none" style="font-size:0.85rem; font-weight:700;">View Details <i class="fas fa-arrow-right ms-1"></i></a>
         </div>
     </div>
 
     <!-- Total Staff Card -->
-    <div class="col-md-6 col-lg-3 mb-3">
-        <div class="card border-0 shadow-sm h-100 bg-success text-white">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-0 border-start border-success border-4 shadow-sm h-100 py-2">
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="card-title mb-2">Total Staff</h6>
-                        <h2 class="mb-0"><?php echo $totalStaff; ?></h2>
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1" style="font-size: 0.8rem; letter-spacing: 0.5px;">Staff Members</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800" style="font-weight: 800; color: #5a5c69; font-size: 1.5rem;"><?php echo $totalStaff; ?></div>
                     </div>
-                    <i class="fas fa-briefcase fa-3x opacity-50"></i>
+                    <div class="col-auto">
+                        <i class="fas fa-chalkboard-teacher fa-2x text-gray-300" style="color: #dddfeb;"></i>
+                    </div>
                 </div>
             </div>
-            <a href="staff/list.php" class="card-footer bg-white text-success text-decoration-none text-center py-2">View Details</a>
+            <a href="staff/list.php" class="card-footer bg-transparent border-0 text-success text-center pb-0 pt-0 text-decoration-none" style="font-size:0.85rem; font-weight:700;">View Details <i class="fas fa-arrow-right ms-1"></i></a>
         </div>
     </div>
 
     <!-- Pending Fees Card -->
-    <div class="col-md-6 col-lg-3 mb-3">
-        <div class="card border-0 shadow-sm h-100 bg-warning text-white">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-0 border-start border-warning border-4 shadow-sm h-100 py-2">
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="card-title mb-2">Pending Fees</h6>
-                        <h2 class="mb-0">₹<?php echo $pendingFees; ?></h2>
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1" style="font-size: 0.8rem; letter-spacing: 0.5px;">Pending Fees</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800" style="font-weight: 800; color: #5a5c69; font-size: 1.5rem;">₹<?php echo $pendingFees; ?></div>
                     </div>
-                    <i class="fas fa-money-bill-wave fa-3x opacity-50"></i>
+                    <div class="col-auto">
+                        <i class="fas fa-rupee-sign fa-2x text-gray-300" style="color: #dddfeb;"></i>
+                    </div>
                 </div>
             </div>
-            <a href="fees/list.php" class="card-footer bg-white text-warning text-decoration-none text-center py-2">View Details</a>
+            <a href="fees/list.php" class="card-footer bg-transparent border-0 text-warning text-center pb-0 pt-0 text-decoration-none" style="font-size:0.85rem; font-weight:700;">View Details <i class="fas fa-arrow-right ms-1"></i></a>
         </div>
     </div>
 
-    <!-- Today's Attendance Card -->
-    <div class="col-md-6 col-lg-3 mb-3">
-        <div class="card border-0 shadow-sm h-100 bg-danger text-white">
+    <!-- Attendance Card -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-0 border-start border-info border-4 shadow-sm h-100 py-2">
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="card-title mb-2">Today's Attendance %</h6>
-                        <h2 class="mb-0"><?php echo $attendancePercent; ?>%</h2>
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1" style="font-size: 0.8rem; letter-spacing: 0.5px;">Attendance (Today)</div>
+                        <div class="row no-gutters align-items-center">
+                            <div class="col-auto">
+                                <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800" style="font-weight: 800; color: #5a5c69; font-size: 1.5rem; margin-right: 15px;"><?php echo $attendancePercent; ?>%</div>
+                            </div>
+                            <div class="col">
+                                <div class="progress progress-sm mr-2" style="height: 0.5rem; margin-right:15px;">
+                                    <div class="progress-bar bg-info" role="progressbar" style="width: <?php echo $attendancePercent; ?>%" aria-valuenow="<?php echo $attendancePercent; ?>" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <i class="fas fa-clipboard-list fa-3x opacity-50"></i>
+                    <div class="col-auto">
+                        <i class="fas fa-clipboard-list fa-2x text-gray-300" style="color: #dddfeb;"></i>
+                    </div>
                 </div>
             </div>
-            <a href="attendance/report.php" class="card-footer bg-white text-danger text-decoration-none text-center py-2">View Details</a>
-        </div>
-    </div>
-</div>
-
-<div class="row mb-4">
-    <!-- Total Classes Card -->
-    <div class="col-md-6 col-lg-3 mb-3">
-        <div class="card border-0 shadow-sm h-100 bg-info text-white">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="card-title mb-2">Total Classes</h6>
-                        <h2 class="mb-0"><?php echo $totalClasses; ?></h2>
-                    </div>
-                    <i class="fas fa-book fa-3x opacity-50"></i>
-                </div>
-            </div>
-            <a href="students/list.php" class="card-footer bg-white text-info text-decoration-none text-center py-2">View Details</a>
-        </div>
-    </div>
-
-    <!-- Upcoming Exams Card -->
-    <div class="col-md-6 col-lg-3 mb-3">
-        <div class="card border-0 shadow-sm h-100 bg-secondary text-white">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="card-title mb-2">Upcoming Exams</h6>
-                        <h2 class="mb-0"><?php echo $upcomingExams; ?></h2>
-                    </div>
-                    <i class="fas fa-pen-square fa-3x opacity-50"></i>
-                </div>
-            </div>
-            <a href="exams/list.php" class="card-footer bg-white text-secondary text-decoration-none text-center py-2">View Details</a>
-        </div>
-    </div>
-
-    <!-- Transport Routes Card -->
-    <div class="col-md-6 col-lg-3 mb-3">
-        <div class="card border-0 shadow-sm h-100 bg-dark text-white">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="card-title mb-2">Transport Routes</h6>
-                        <h2 class="mb-0"><?php echo $totalTransports; ?></h2>
-                    </div>
-                    <i class="fas fa-bus fa-3x opacity-50"></i>
-                </div>
-            </div>
-            <a href="transport/list.php" class="card-footer bg-white text-dark text-decoration-none text-center py-2">View Details</a>
-        </div>
-    </div>
-
-    <!-- Hostel Occupancy Card -->
-    <div class="col-md-6 col-lg-3 mb-3">
-        <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="card-title mb-2">Hostel Occupancy</h6>
-                        <h2 class="mb-0"><?php echo $hostelOccupancy; ?>%</h2>
-                        <small>(<?php echo $occupiedRooms; ?>/<?php echo $totalRooms; ?> rooms)</small>
-                    </div>
-                    <i class="fas fa-home fa-3x opacity-50"></i>
-                </div>
-            </div>
-            <a href="hostel/list.php" class="card-footer bg-white text-decoration-none text-center py-2" style="color: #667eea !important;">View Details</a>
+            <a href="attendance/report.php" class="card-footer bg-transparent border-0 text-info text-center pb-0 pt-0 text-decoration-none" style="font-size:0.85rem; font-weight:700;">View Details <i class="fas fa-arrow-right ms-1"></i></a>
         </div>
     </div>
 </div>
 
 <div class="row">
-    <div class="col-lg-12">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-light border-bottom">
-                <h5 class="mb-0"><i class="fas fa-info-circle"></i> System Information</h5>
+    <!-- Chart Column -->
+    <div class="col-xl-8 col-lg-7 mb-4">
+        <div class="card shadow-sm border-0 mb-4 h-100">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between bg-white border-bottom">
+                <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-chart-area me-2"></i>School Overview</h6>
             </div>
             <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <p><strong>School Name:</strong> ABC School</p>
-                        <p><strong>System Version:</strong> 1.0</p>
-                    </div>
-                    <div class="col-md-6">
-                        <p><strong>Current Date:</strong> <?php echo date('d-m-Y'); ?></p>
-                        <p><strong>Last Login:</strong> Available soon</p>
-                    </div>
+                <div class="chart-area" style="height: 300px; width: 100%;">
+                    <canvas id="myAreaChart"></canvas>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Mini Stats Column -->
+    <div class="col-xl-4 col-lg-5 mb-4">
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header py-3 bg-white border-bottom">
+                <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-building me-2"></i>Infrastructure</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-4">
+                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 45px; height: 45px;">
+                        <i class="fas fa-bus"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h6 class="mb-0 font-weight-bold">Transport Hub</h6>
+                        <small class="text-muted"><b class="text-dark"><?php echo $totalTransports; ?></b> Active Routes</small>
+                    </div>
+                    <a href="transport/list.php" class="btn btn-sm btn-light text-primary">View</a>
+                </div>
+                
+                <div class="d-flex align-items-center mb-4">
+                    <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 45px; height: 45px;">
+                        <i class="fas fa-home"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h6 class="mb-0 font-weight-bold">Hostel Blocks</h6>
+                        <small class="text-muted"><b class="text-dark"><?php echo $totalRooms; ?></b> Registered Rooms</small>
+                    </div>
+                    <a href="hostel/list.php" class="btn btn-sm btn-light text-success">View</a>
+                </div>
+                
+                <div class="d-flex align-items-center">
+                    <div class="bg-info text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 45px; height: 45px;">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h6 class="mb-0 font-weight-bold">Academics</h6>
+                        <small class="text-muted"><b class="text-dark"><?php echo $upcomingExams; ?></b> Upcoming Exams</small>
+                    </div>
+                    <a href="exams/list.php" class="btn btn-sm btn-light text-info">View</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Hostel Occupancy Progress -->
+        <div class="card shadow-sm border-0 border-bottom border-dark border-3">
+             <div class="card-body">
+                <h6 class="font-weight-bold text-dark mb-1">Hostel Occupancy</h6>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-muted small"><?php echo $occupiedRooms; ?>/<?php echo $totalRooms; ?> Rooms Filled</span>
+                    <span class="font-weight-bold text-dark"><?php echo $hostelOccupancy; ?>%</span>
+                </div>
+                <div class="progress" style="height: 8px;">
+                    <div class="progress-bar bg-dark" role="progressbar" style="width: <?php echo $hostelOccupancy; ?>%" aria-valuenow="<?php echo $hostelOccupancy; ?>" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+             </div>
+        </div>
+    </div>
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    var ctx = document.getElementById("myAreaChart");
+    if (ctx) {
+        var myPieChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+                datasets: [{
+                    label: "Fees Collected (₹)",
+                    backgroundColor: "rgba(78, 115, 223, 0.8)",
+                    hoverBackgroundColor: "rgba(78, 115, 223, 1)",
+                    borderColor: "#4e73df",
+                    data: [12000, 25000, 18000, 32000, 15000, 40000, 45000, 21000, 19000, 28000, 24000, 31000],
+                    borderRadius: 4,
+                }],
+            },
+            options: {
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            display: false,
+                            drawBorder: false
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: "rgb(234, 236, 244)",
+                            zeroLineColor: "rgb(234, 236, 244)",
+                            drawBorder: false,
+                            borderDash: [2],
+                            zeroLineBorderDash: [2]
+                        }
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
 
 <?php require_once 'footer.php'; ?>

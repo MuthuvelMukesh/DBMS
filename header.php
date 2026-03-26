@@ -38,7 +38,9 @@ if (!$is_root_file) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>School Management System</title>
+        <title>School Management System</title>
+    <!-- Google Fonts: Nunito -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- DataTables CSS -->
@@ -46,15 +48,51 @@ if (!$is_root_file) {
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap5.min.css">
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f8f9fa;
+            font-family: 'Nunito', Tahoma, Geneva, Verdana, sans-serif;       
+            background-color: #f8f9fc;
+            color: #5a5c69;
         }
+        /* Fade-in animation for smooth page loads */
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Modern Cards */
+        .card {
+            border: none;
+            border-radius: 0.75rem;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0.5rem 2rem 0 rgba(58, 59, 69, 0.2);
+        }
+        .card-header {
+            background-color: #f8f9fc;
+            border-bottom: 1px solid #e3e6f0;
+            border-radius: 0.75rem 0.75rem 0 0 !important;
+            font-weight: 700;
+            color: #4e73df;
+        }
+        /* Dashboard Stats Cards Overrides */
+        .card.bg-primary { background-color: #4e73df !important; }
+        .card.bg-success { background-color: #1cc88a !important; }
+        .card.bg-warning { background-color: #f6c23e !important; }
+        .card.bg-danger { background-color: #e74a3b !important; }
+        .card.bg-info { background-color: #36b9cc !important; }
+        
         .main-wrapper {
             display: flex;
         }
         .sidebar-wrapper {
             width: 250px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(180deg, #4e73df 10%, #224abe 100%);
             min-height: 100vh;
             position: fixed;
             left: 0;
@@ -62,6 +100,27 @@ if (!$is_root_file) {
             color: white;
             overflow-y: auto;
             z-index: 1000;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+        }
+        /* Sidebar Link Enhancements */
+        .sidebar-wrapper .nav-item .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 700;
+            padding: 1rem;
+            transition: all 0.2s;
+        }
+        .sidebar-wrapper .nav-item .nav-link:hover, 
+        .sidebar-wrapper .nav-item .nav-link:focus {
+            color: #fff;
+            background: rgba(255,255,255,0.1);
+            border-radius: 5px;
+            margin: 0 10px;
+        }
+        .sidebar-wrapper .nav-item .collapse .nav-link {
+            font-weight: 400;
+            font-size: 0.9rem;
+            padding: 0.5rem 1rem;
+            margin: 0;
         }
         .content-wrapper {
             margin-left: 250px;
@@ -71,16 +130,19 @@ if (!$is_root_file) {
             flex-direction: column;
         }
         .navbar-wrapper {
-            background: white;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            padding: 1rem;
+            background: white !important;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            padding: 1rem 2rem;
         }
-        .navbar-brand:hover {
-            color: #667eea !important;
+        .navbar-brand {
+            font-weight: 800;
+            color: #4e73df !important;
         }
-        .main-content {
-            flex: 1;
-            padding: 2rem;
+        /* Buttons */
+        .btn {
+            border-radius: 0.35rem;
+            font-weight: 600;
+            transition: all 0.2s;
         }
         @media (max-width: 768px) {
             .sidebar-wrapper {
@@ -95,11 +157,14 @@ if (!$is_root_file) {
         }
         .alert-dismissible {
             margin-bottom: 1rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
         }
         h1.page-title {
-            color: #333;
-            margin-bottom: 1.5rem;
-            font-weight: 600;
+            color: #5a5c69;
+            margin-bottom: 2rem;
+            font-weight: 800;
+            font-size: 1.75rem;
         }
     </style>
 </head>
