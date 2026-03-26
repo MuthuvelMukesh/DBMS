@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             INSERT INTO staff (staff_id, full_name, designation, department, contact, email, salary, join_date, status)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'active')
         ");
-        $stmt->bind_param("ssssssd s", $staff_id, $full_name, $designation, $department, $contact, $email, $salary, $join_date);
+        $stmt->bind_param("ssssssds", $staff_id, $full_name, $designation, $department, $contact, $email, $salary, $join_date);
 
         if ($stmt->execute()) {
             $success = 'Staff member added successfully! Staff ID: ' . $staff_id;

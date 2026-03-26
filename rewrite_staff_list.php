@@ -1,4 +1,6 @@
 <?php
+$content = <<<'EOD'
+<?php
 require_once '../header.php';
 
 if ($role != 'admin') {
@@ -78,3 +80,7 @@ $staff = $result->fetch_all(MYSQLI_ASSOC);
 </div>
 
 <?php require_once '../footer.php'; ?>
+EOD;
+
+file_put_contents('staff/list.php', $content);
+?>

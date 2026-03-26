@@ -124,11 +124,15 @@ if ($selected_exam > 0) {
                     <div class="card-body text-center">
                         <h6 class="text-muted">Pass Percentage</h6>
                         <h4 class="text-success mb-0">
-                            <?php 
-                            $passed_count = count(array_filter($results, function($r) {
-                                return $r['marks_obtained'] >= $exam_info['pass_marks'];
-                            }));
-                            echo round(($passed_count / count($results)) * 100, 1) . '%';
+                            <?php
+                            if (count($results) > 0 && $exam_info) {
+                                $passed_count = count(array_filter($results, function($r) use ($exam_info) {
+                                    return $r['marks_obtained'] >= $exam_info['pass_marks'];
+                                }));
+                                echo round(($passed_count / count($results)) * 100, 1) . '%';
+                            } else {
+                                echo '0%';
+                            }
                             ?>
                         </h4>
                     </div>
@@ -139,9 +143,13 @@ if ($selected_exam > 0) {
                     <div class="card-body text-center">
                         <h6 class="text-muted">Average Marks</h6>
                         <h4 class="text-warning mb-0">
-                            <?php 
-                            $total_marks = array_sum(array_column($results, 'marks_obtained'));
-                            echo round($total_marks / count($results), 2);
+                            <?php
+                            if (count($results) > 0) {
+                                $total_marks = array_sum(array_column($results, 'marks_obtained'));
+                                echo round($total_marks / count($results), 2);
+                            } else {
+                                echo '0';
+                            }
                             ?>
                         </h4>
                     </div>
