@@ -4,7 +4,12 @@ A robust, feature-rich PHP & MySQL School Management System.
 
 ## 🚀 Features Implemented So Far
 
-### 1. Advanced Role-Based Access Control (RBAC)
+### 1. Database Schema Synchronization & Full ERD Mapping
+*   **Comprehensive Architecture Mapping:** Full system modeled using Chen Notation (11 Entities fully synchronized).
+*   **Database Scaffold:** Verified all foundational tables (`users`, `students`, `staff`, `classes`, `attendance`, `fees`, `exams`, `results`, `transport`, `hostel`, `notices`) perfectly align with constraints and relationships.
+*   **Insecure Direct Object Reference (IDOR) Hardening:** Hard-coded array role-checks injected across all backend structural endpoint files making URL-bypass attempts impossible.
+
+### 2. Advanced Role-Based Access Control (RBAC)
 *   **Secure Routing:** Restricts directory and file access based on 4 distinct roles: **Admin, Teacher, Staff, and Parent**.
 *   **Dynamic UI:** Sidebar menus and features dynamically adapt depending on the active user session.
 *   **Demo Mode:** Pre-seeded demo credentials provided straight on the login page for rapid role-testing.

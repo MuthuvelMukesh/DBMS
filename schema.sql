@@ -195,6 +195,21 @@ CREATE TABLE IF NOT EXISTS hostel_assignments (
     INDEX idx_status (status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Notices table
+CREATE TABLE IF NOT EXISTS notices (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    title VARCHAR(255) NOT NULL,
+    message TEXT NOT NULL,
+    type ENUM('academic', 'event', 'holiday', 'general') NOT NULL DEFAULT 'general',
+    published_by INT,
+    status ENUM('active', 'inactive') NOT NULL DEFAULT 'active',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (published_by) REFERENCES users(id) ON DELETE SET NULL,
+    INDEX idx_type (type),
+    INDEX idx_status (status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Insert initial admin user (password: admin123)
 INSERT INTO users (username, password, role, status) VALUES 
 ('admin', '$2y$10$YPdQS80C7q9c6KJfUBt1NuCL..YzCe3gVKXCL3Y3Q8lRqZGmKqECG', 'admin', 'active');
