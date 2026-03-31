@@ -54,74 +54,115 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #0f172a 0%, #334155 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Nunito', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
         }
         .login-container {
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            padding: 40px;
+            background: #ffffff;
+            border-radius: 1.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+            padding: 3rem 2.5rem;
             width: 100%;
-            max-width: 400px;
+            max-width: 420px;
+            animation: slideUp 0.5s ease-out forwards;
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         .login-header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 2.5rem;
+        }
+        .login-header i {
+            color: #3b82f6;
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: #eff6ff;
+            padding: 1.25rem;
+            border-radius: 50%;
         }
         .login-header h1 {
-            color: #667eea;
-            font-size: 28px;
-            margin-bottom: 10px;
-            font-weight: 700;
+            color: #0f172a;
+            font-size: 1.75rem;
+            margin-bottom: 0.5rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
         }
         .login-header p {
-            color: #666;
+            color: #64748b;
+            font-size: 0.95rem;
             margin-bottom: 0;
+            font-weight: 600;
+        }
+        .form-label {
+            font-weight: 700;
+            color: #334155;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        .input-group {
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            border-radius: 0.75rem;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .input-group:focus-within {
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
         }
         .form-control {
-            border-radius: 5px;
-            border: 1px solid #ddd;
-            padding: 10px 15px;
-            margin-bottom: 15px;
+            border: 1px solid #cbd5e1;
+            border-left: none;
+            padding: 0.75rem 1rem;
         }
         .form-control:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
-        }
-        .btn-login {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            color: white;
-            padding: 10px;
-            border-radius: 5px;
-            font-weight: 600;
-            width: 100%;
-            transition: transform 0.2s;
-        }
-        .btn-login:hover {
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-        .alert {
-            border-radius: 5px;
-            margin-bottom: 20px;
+            border-color: #cbd5e1;
+            box-shadow: none;
         }
         .input-group-text {
-            background: white;
-            border: 1px solid #ddd;
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-right: none;
+            color: #94a3b8;
+            padding-left: 1.25rem;
+        }
+        .btn-login {
+            background: #3b82f6;
+            border: none;
+            color: white;
+            padding: 0.85rem;
+            border-radius: 0.75rem;
+            font-weight: 700;
+            font-size: 1rem;
+            width: 100%;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-top: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.4);
+        }
+        .btn-login:hover {
+            background: #2563eb;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.5);
+        }
+        .alert {
+            border-radius: 0.75rem;
+            font-weight: 600;
+            border: none;
+            font-size: 0.9rem;
         }
     </style>
 </head>
 <body>
     <div class="login-container">
         <div class="login-header">
-            <h1><i class="fas fa-graduation-cap"></i></h1>
+            <i class="fas fa-graduation-cap d-inline-block"></i>
             <h1>SchoolMS</h1>
             <p>School Management System</p>
         </div>

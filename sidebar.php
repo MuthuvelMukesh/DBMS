@@ -9,35 +9,35 @@ if (!isset($_SESSION['user_id'])) {
 $role = $_SESSION['role'];
 ?>
 <div class="sidebar-wrapper">
-    <div class="p-4 border-bottom border-secondary">
-        <h5 class="mb-0">
-            <i class="fas fa-graduation-cap"></i>
-            <span class="sidebar-text">SchoolMS</span>
-        </h5>
-    </div>
+    <a href="<?php echo BASE_URL; ?>dashboard.php" class="sidebar-brand text-decoration-none">
+        <i class="fas fa-graduation-cap"></i>
+        <span class="sidebar-text">School<span>MS</span></span>
+    </a>
     <nav class="navbar navbar-expand-lg navbar-dark w-100 p-0 flex-column">     
         <ul class="navbar-nav flex-column w-100">
             <li class="nav-item">
-                <a class="nav-link text-white py-3 px-4" href="<?php echo BASE_URL; ?>dashboard.php">
+                <a class="nav-link" href="<?php echo BASE_URL; ?>dashboard.php">
                     <i class="fas fa-chart-line"></i>
-                    <span class="sidebar-text ms-2">Dashboard</span>
+                    <span class="sidebar-text">Dashboard</span>
                 </a>
             </li>
 
             <!-- Student Management -->
             <?php if (in_array($role, ['admin', 'teacher'])): ?>
             <li class="nav-item">
-                <a class="nav-link text-white py-3 px-4" data-bs-toggle="collapse" href="#studentMenu" role="button">
+                <a class="nav-link" data-bs-toggle="collapse" href="#studentMenu" role="button" aria-expanded="false">
                     <i class="fas fa-users"></i>
-                    <span class="sidebar-text ms-2">Students</span>
+                    <span class="sidebar-text">Students</span>
+                    <i class="fas fa-chevron-down ms-auto" style="font-size: 0.8rem; margin-left: auto; opacity: 0.5;"></i>
+                    <i class="fas fa-chevron-down ms-auto" style="font-size: 0.8rem;"></i>
                 </a>
                 <div class="collapse" id="studentMenu">
-                    <ul class="navbar-nav flex-column ms-3">
+                    <ul class="navbar-nav flex-column">
                         <li class="nav-item">
-                            <a class="nav-link text-white py-2 px-4" href="<?php echo BASE_URL; ?>students/list.php">View All</a>
+                            <a class="nav-link" href="<?php echo BASE_URL; ?>students/list.php">View All</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white py-2 px-4" href="<?php echo BASE_URL; ?>students/add.php">Add Student</a>
+                            <a class="nav-link" href="<?php echo BASE_URL; ?>students/add.php">Add Student</a>
                         </li>
                     </ul>
                 </div>
@@ -47,17 +47,18 @@ $role = $_SESSION['role'];
             <!-- Staff Management -->
             <?php if (in_array($role, ['admin'])): ?>
             <li class="nav-item">
-                <a class="nav-link text-white py-3 px-4" data-bs-toggle="collapse" href="#staffMenu" role="button">
+                <a class="nav-link" data-bs-toggle="collapse" href="#staffMenu" role="button" aria-expanded="false">
                     <i class="fas fa-briefcase"></i>
-                    <span class="sidebar-text ms-2">Staff</span>
+                    <span class="sidebar-text">Staff</span>
+                    <i class="fas fa-chevron-down ms-auto" style="font-size: 0.8rem; margin-left: auto; opacity: 0.5;"></i>
                 </a>
                 <div class="collapse" id="staffMenu">
-                    <ul class="navbar-nav flex-column ms-3">
+                    <ul class="navbar-nav flex-column">
                         <li class="nav-item">
-                            <a class="nav-link text-white py-2 px-4" href="<?php echo BASE_URL; ?>staff/list.php">View All</a>
+                            <a class="nav-link" href="<?php echo BASE_URL; ?>staff/list.php">View All</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white py-2 px-4" href="<?php echo BASE_URL; ?>staff/add.php">Add Staff</a>
+                            <a class="nav-link" href="<?php echo BASE_URL; ?>staff/add.php">Add Staff</a>
                         </li>
                     </ul>
                 </div>
@@ -65,9 +66,9 @@ $role = $_SESSION['role'];
 
             <!-- Classes Management -->
             <li class="nav-item">
-                <a class="nav-link text-white py-3 px-4" href="<?php echo BASE_URL; ?>classes/list.php">
+                <a class="nav-link" href="<?php echo BASE_URL; ?>classes/list.php">
                     <i class="fas fa-chalkboard"></i>
-                    <span class="sidebar-text ms-2">Classes</span>
+                    <span class="sidebar-text">Classes</span>
                 </a>
             </li>
             <?php endif; ?>
@@ -75,22 +76,23 @@ $role = $_SESSION['role'];
             <!-- Attendance Management -->
             <?php if (in_array($role, ['admin', 'teacher', 'parent'])): ?>
             <li class="nav-item">
-                <a class="nav-link text-white py-3 px-4" data-bs-toggle="collapse" href="#attendanceMenu" role="button">
+                <a class="nav-link" data-bs-toggle="collapse" href="#attendanceMenu" role="button">
                     <i class="fas fa-clipboard-list"></i>
-                    <span class="sidebar-text ms-2">Attendance</span>
+                    <span class="sidebar-text">Attendance</span>
+                    <i class="fas fa-chevron-down ms-auto" style="font-size: 0.8rem; margin-left: auto; opacity: 0.5;"></i>
                 </a>
                 <div class="collapse" id="attendanceMenu">
-                    <ul class="navbar-nav flex-column ms-3">
+                    <ul class="navbar-nav flex-column">
                         <?php if (in_array($role, ['admin', 'teacher'])): ?>
                         <li class="nav-item">
-                            <a class="nav-link text-white py-2 px-4" href="<?php echo BASE_URL; ?>attendance/mark.php">Mark Attendance</a>
+                            <a class="nav-link" href="<?php echo BASE_URL; ?>attendance/mark.php">Mark Attendance</a>
                         </li>
                         <?php endif; ?>
                         <li class="nav-item">
-                            <a class="nav-link text-white py-2 px-4" href="<?php echo BASE_URL; ?>attendance/report.php">Monthly Report</a>
+                            <a class="nav-link" href="<?php echo BASE_URL; ?>attendance/report.php">Monthly Report</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white py-2 px-4" href="<?php echo BASE_URL; ?>attendance/student_report.php">Student History</a>
+                            <a class="nav-link" href="<?php echo BASE_URL; ?>attendance/student_report.php">Student History</a>
                         </li>
                     </ul>
                 </div>
@@ -100,21 +102,22 @@ $role = $_SESSION['role'];
             <!-- Fees Management -->
             <?php if (in_array($role, ['admin', 'parent'])): ?>
             <li class="nav-item">
-                <a class="nav-link text-white py-3 px-4" data-bs-toggle="collapse" href="#feesMenu" role="button">
+                <a class="nav-link" data-bs-toggle="collapse" href="#feesMenu" role="button">
                     <i class="fas fa-money-bill-wave"></i>
-                    <span class="sidebar-text ms-2">Fees</span>
+                    <span class="sidebar-text">Fees</span>
+                    <i class="fas fa-chevron-down ms-auto" style="font-size: 0.8rem; margin-left: auto; opacity: 0.5;"></i>
                 </a>
                 <div class="collapse" id="feesMenu">
-                    <ul class="navbar-nav flex-column ms-3">
+                    <ul class="navbar-nav flex-column">
                         <li class="nav-item">
-                            <a class="nav-link text-white py-2 px-4" href="<?php echo BASE_URL; ?>fees/list.php">View All</a>
+                            <a class="nav-link" href="<?php echo BASE_URL; ?>fees/list.php">View All</a>
                         </li>
                         <?php if (in_array($role, ['admin'])): ?>
                         <li class="nav-item">
-                            <a class="nav-link text-white py-2 px-4" href="<?php echo BASE_URL; ?>fees/add.php">Add Fee</a>
+                            <a class="nav-link" href="<?php echo BASE_URL; ?>fees/add.php">Add Fee</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white py-2 px-4" href="<?php echo BASE_URL; ?>fees/collect.php">Collect Payment</a>
+                            <a class="nav-link" href="<?php echo BASE_URL; ?>fees/collect.php">Collect Payment</a>
                         </li>
                         <?php endif; ?>
                     </ul>
@@ -125,18 +128,19 @@ $role = $_SESSION['role'];
             <!-- Exams Management -->
             <?php if (in_array($role, ['admin', 'teacher'])): ?>
             <li class="nav-item">
-                <a class="nav-link text-white py-3 px-4" data-bs-toggle="collapse" href="#examsMenu" role="button">
+                <a class="nav-link" data-bs-toggle="collapse" href="#examsMenu" role="button">
                     <i class="fas fa-pen-square"></i>
-                    <span class="sidebar-text ms-2">Exams</span>
+                    <span class="sidebar-text">Exams</span>
+                    <i class="fas fa-chevron-down ms-auto" style="font-size: 0.8rem; margin-left: auto; opacity: 0.5;"></i>
                 </a>
                 <div class="collapse" id="examsMenu">
-                    <ul class="navbar-nav flex-column ms-3">
+                    <ul class="navbar-nav flex-column">
                         <li class="nav-item">
-                            <a class="nav-link text-white py-2 px-4" href="<?php echo BASE_URL; ?>exams/list.php">View All</a>
+                            <a class="nav-link" href="<?php echo BASE_URL; ?>exams/list.php">View All</a>
                         </li>
                         <?php if (in_array($role, ['admin'])): ?>
                         <li class="nav-item">
-                            <a class="nav-link text-white py-2 px-4" href="<?php echo BASE_URL; ?>exams/add.php">Add Exam</a>
+                            <a class="nav-link" href="<?php echo BASE_URL; ?>exams/add.php">Add Exam</a>
                         </li>
                         <?php endif; ?>
                     </ul>
@@ -147,21 +151,22 @@ $role = $_SESSION['role'];
             <!-- Results Management -->
             <?php if (in_array($role, ['admin', 'teacher', 'parent'])): ?>
             <li class="nav-item">
-                <a class="nav-link text-white py-3 px-4" data-bs-toggle="collapse" href="#resultsMenu" role="button">
+                <a class="nav-link" data-bs-toggle="collapse" href="#resultsMenu" role="button">
                     <i class="fas fa-chart-bar"></i>
-                    <span class="sidebar-text ms-2">Results</span>
+                    <span class="sidebar-text">Results</span>
+                    <i class="fas fa-chevron-down ms-auto" style="font-size: 0.8rem; margin-left: auto; opacity: 0.5;"></i>
                 </a>
                 <div class="collapse" id="resultsMenu">
-                    <ul class="navbar-nav flex-column ms-3">
+                    <ul class="navbar-nav flex-column">
                         <li class="nav-item">
-                            <a class="nav-link text-white py-2 px-4" href="<?php echo BASE_URL; ?>results/report.php">View Results</a>
+                            <a class="nav-link" href="<?php echo BASE_URL; ?>results/report.php">View Results</a>
                         </li>
                         <?php if (in_array($role, ['admin', 'teacher'])): ?>
                         <li class="nav-item">
-                            <a class="nav-link text-white py-2 px-4" href="<?php echo BASE_URL; ?>results/add.php">Add Results</a>
+                            <a class="nav-link" href="<?php echo BASE_URL; ?>results/add.php">Add Results</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white py-2 px-4" href="<?php echo BASE_URL; ?>results/marksheet.php">Marksheet</a>
+                            <a class="nav-link" href="<?php echo BASE_URL; ?>results/marksheet.php">Marksheet</a>
                         </li>
                         <?php endif; ?>
                     </ul>
@@ -172,20 +177,21 @@ $role = $_SESSION['role'];
             <!-- Transport Management -->
             <?php if (in_array($role, ['admin', 'staff'])): ?>
             <li class="nav-item">
-                <a class="nav-link text-white py-3 px-4" data-bs-toggle="collapse" href="#transportMenu" role="button">
+                <a class="nav-link" data-bs-toggle="collapse" href="#transportMenu" role="button">
                     <i class="fas fa-bus"></i>
-                    <span class="sidebar-text ms-2">Transport</span>
+                    <span class="sidebar-text">Transport</span>
+                    <i class="fas fa-chevron-down ms-auto" style="font-size: 0.8rem; margin-left: auto; opacity: 0.5;"></i>
                 </a>
                 <div class="collapse" id="transportMenu">
-                    <ul class="navbar-nav flex-column ms-3">
+                    <ul class="navbar-nav flex-column">
                         <li class="nav-item">
-                            <a class="nav-link text-white py-2 px-4" href="<?php echo BASE_URL; ?>transport/routes.php">Routes</a>
+                            <a class="nav-link" href="<?php echo BASE_URL; ?>transport/routes.php">Routes</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white py-2 px-4" href="<?php echo BASE_URL; ?>transport/assign.php">Assign</a>
+                            <a class="nav-link" href="<?php echo BASE_URL; ?>transport/assign.php">Assign</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white py-2 px-4" href="<?php echo BASE_URL; ?>transport/list.php">Student Assignments</a>
+                            <a class="nav-link" href="<?php echo BASE_URL; ?>transport/list.php">Student Assignments</a>
                         </li>
                     </ul>
                 </div>
@@ -195,23 +201,24 @@ $role = $_SESSION['role'];
             <!-- Hostel Management -->
             <?php if (in_array($role, ['admin', 'staff'])): ?>
             <li class="nav-item">
-                <a class="nav-link text-white py-3 px-4" data-bs-toggle="collapse" href="#hostelMenu" role="button">
+                <a class="nav-link" data-bs-toggle="collapse" href="#hostelMenu" role="button">
                     <i class="fas fa-home"></i>
-                    <span class="sidebar-text ms-2">Hostel</span>
+                    <span class="sidebar-text">Hostel</span>
+                    <i class="fas fa-chevron-down ms-auto" style="font-size: 0.8rem; margin-left: auto; opacity: 0.5;"></i>
                 </a>
                 <div class="collapse" id="hostelMenu">
-                    <ul class="navbar-nav flex-column ms-3">
+                    <ul class="navbar-nav flex-column">
                         <li class="nav-item">
-                            <a class="nav-link text-white py-2 px-4" href="<?php echo BASE_URL; ?>hostel/rooms.php">Rooms</a>
+                            <a class="nav-link" href="<?php echo BASE_URL; ?>hostel/rooms.php">Rooms</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white py-2 px-4" href="<?php echo BASE_URL; ?>hostel/assign.php">Assign Room</a>
+                            <a class="nav-link" href="<?php echo BASE_URL; ?>hostel/assign.php">Assign Room</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white py-2 px-4" href="<?php echo BASE_URL; ?>hostel/list.php">Assignments</a>
+                            <a class="nav-link" href="<?php echo BASE_URL; ?>hostel/list.php">Assignments</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white py-2 px-4" href="<?php echo BASE_URL; ?>hostel/vacate.php">Vacate</a>
+                            <a class="nav-link" href="<?php echo BASE_URL; ?>hostel/vacate.php">Vacate</a>
                         </li>
                     </ul>
                 </div>
@@ -221,9 +228,9 @@ $role = $_SESSION['role'];
             <!-- Communication / Noticeboard -->
             <?php if (in_array($role, ['admin'])): ?>
             <li class="nav-item border-top border-secondary mt-2 pt-2">
-                <a class="nav-link text-white py-3 px-4" href="<?php echo BASE_URL; ?>notices/index.php">
+                <a class="nav-link" href="<?php echo BASE_URL; ?>notices/index.php">
                     <i class="fas fa-bullhorn"></i>
-                    <span class="sidebar-text ms-2">Noticeboard</span>
+                    <span class="sidebar-text">Noticeboard</span>
                 </a>
             </li>
             <?php endif; ?>
@@ -231,9 +238,9 @@ $role = $_SESSION['role'];
             <!-- System Settings -->
             <?php if (in_array($role, ['admin'])): ?>
             <li class="nav-item">
-                <a class="nav-link text-white py-3 px-4" href="<?php echo BASE_URL; ?>settings/index.php">
+                <a class="nav-link" href="<?php echo BASE_URL; ?>settings/index.php">
                     <i class="fas fa-cogs"></i>
-                    <span class="sidebar-text ms-2">Settings</span>
+                    <span class="sidebar-text">Settings</span>
                 </a>
             </li>
             <?php endif; ?>
