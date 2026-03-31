@@ -1,5 +1,10 @@
 <?php
 require_once '../header.php';
+if ($role !== 'admin') {
+    header('Location: ' . BASE_URL . 'dashboard.php?error=Access Denied');
+    exit();
+}
+
 
 $student_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
