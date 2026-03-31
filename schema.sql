@@ -200,14 +200,14 @@ CREATE TABLE IF NOT EXISTS notices (
     id INT PRIMARY KEY AUTO_INCREMENT,
     title VARCHAR(255) NOT NULL,
     message TEXT NOT NULL,
-    type ENUM('academic', 'event', 'holiday', 'general') NOT NULL DEFAULT 'general',
+    type ENUM('info', 'success', 'warning', 'danger') NOT NULL DEFAULT 'info',
     published_by INT,
-    status ENUM('active', 'inactive') NOT NULL DEFAULT 'active',
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (published_by) REFERENCES users(id) ON DELETE SET NULL,
     INDEX idx_type (type),
-    INDEX idx_status (status)
+    INDEX idx_status (is_active)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Insert initial admin user (password: admin123)
