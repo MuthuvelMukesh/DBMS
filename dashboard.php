@@ -81,12 +81,35 @@ $occupiedRow = $occupiedResult->fetch_assoc();
 $occupiedRooms = $occupiedRow['occupied'];
 $stmt->close();
 $hostelOccupancy = $totalRooms > 0 ? round(($occupiedRooms / $totalRooms) * 100, 1) : 0;
+
+// Fetch Active Notices
+$noticeResult = $conn->query("SELECT * FROM notices WHERE is_active = 1 ORDER BY created_at DESC LIMIT 3");
 ?>
 
 <div class="d-sm-flex align-items-center justify-content-between mb-4 mt-2">
     <h1 class="page-title mb-0"><i class="fas fa-chart-line text-primary"></i> Dashboard</h1>
     <a href="#" class="btn btn-sm btn-primary shadow-sm"><i class="fas fa-download fa-sm text-white-50"></i> Generate Report</a>
 </div>
+
+<!-- Noticeboard Alerts -->
+<?php if($noticeResult && $noticeResult->num_rows > 0): ?>
+    <div class="mb-4">
+        <?php while($n = $noticeResult->fetch_assoc()): 
+            $bs_class = $n['type'] === 'error' ? 'danger' : $n['type'];
+            $icon = 'info-circle';
+            if ($bs_class == 'warning') $icon = 'exclamation-triangle';
+            if ($bs_class == 'danger') $icon = 'exclamation-circle';
+            if ($bs_class == 'success') $icon = 'check-circle';
+        ?>
+            <div class="alert alert-<?php echo $bs_class; ?> alert-dismissible fade show shadow-sm" role="alert" style="border-left: 5px solid;">
+                <h5 class="alert-heading font-weight-bold mb-1"><i class="fas fa-<?php echo $icon; ?> me-2"></i> <?php echo htmlspecialchars($n['title']); ?></h5>
+                <hr class="mt-1 mb-2">
+                <p class="mb-0"><?php echo nl2br(htmlspecialchars($n['message'])); ?></p>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        <?php endwhile; ?>
+    </div>
+<?php endif; ?>
 
 <div class="row">
     <!-- Total Students Card -->

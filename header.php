@@ -13,10 +13,21 @@ $user_id = $_SESSION['user_id'];
 $username = $_SESSION['username'];
 $role = $_SESSION['role'];
 
+// Fetch Global Settings
+$settings_query = $conn->query("SELECT setting_key, setting_value FROM system_settings");
+$sys_settings = [];
+if ($settings_query) {
+    while($row = $settings_query->fetch_assoc()){
+        $sys_settings[$row['setting_key']] = $row['setting_value'];
+    }
+}
+$school_name = isset($sys_settings['school_name']) && !empty($sys_settings['school_name']) ? $sys_settings['school_name'] : 'School Management System';
+$school_logo = isset($sys_settings['logo_path']) && !empty($sys_settings['logo_path']) ? BASE_URL . $sys_settings['logo_path'] : '';
+
 // Role-Based Access Control (RBAC) Logic
 $permissions = [
-    'admin' => ['students', 'staff', 'attendance', 'fees', 'exams', 'results', 'transport', 'hostel', 'SchoolMS', 'profile.php', 'dashboard.php', 'logout.php'],
-    'teacher' => ['students', 'attendance', 'exams', 'results', 'SchoolMS', 'profile.php', 'dashboard.php', 'logout.php'],
+    'admin' => ['students', 'staff', 'classes', 'attendance', 'fees', 'exams', 'results', 'transport', 'hostel', 'settings', 'notices', 'SchoolMS', 'profile.php', 'dashboard.php', 'logout.php'],
+    'teacher' => ['students', 'classes', 'attendance', 'exams', 'results', 'SchoolMS', 'profile.php', 'dashboard.php', 'logout.php'],
     'staff' => ['transport', 'hostel', 'SchoolMS', 'profile.php', 'dashboard.php', 'logout.php'],
     'parent' => ['fees', 'attendance', 'results', 'SchoolMS', 'profile.php', 'dashboard.php', 'logout.php']
 ];
@@ -38,7 +49,7 @@ if (!$is_root_file) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>School Management System</title>
+        <title><?php echo htmlspecialchars($school_name); ?></title>
     <!-- Google Fonts: Nunito -->
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -174,8 +185,13 @@ if (!$is_root_file) {
         <div class="content-wrapper">
             <nav class="navbar navbar-expand-lg navbar-light navbar-wrapper">
                 <div class="container-fluid">
-                    <span class="navbar-brand mb-0 h1">
-                        <i class="fas fa-graduation-cap"></i> School Management System
+                    <span class="navbar-brand mb-0 h1 d-flex align-items-center">
+                        <?php if($school_logo): ?>
+                            <img src="<?php echo htmlspecialchars($school_logo); ?>" alt="Logo" style="height: 30px; margin-right: 10px;">
+                        <?php else: ?>
+                            <i class="fas fa-graduation-cap me-2"></i>
+                        <?php endif; ?>
+                        <?php echo htmlspecialchars($school_name); ?>
                     </span>
                     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                         <span class="navbar-toggler-icon"></span>

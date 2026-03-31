@@ -156,7 +156,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </form>
 
         <div class="mt-3 text-center text-muted small">
-            <p>Demo Credentials:<br>Username: <strong>admin</strong><br>Password: <strong>admin123</strong></p>
+            <p>Demo Credentials (Password: <strong>admin123</strong>):<br>
+            Admin: <strong>admin</strong> | Teacher: <strong>teacher</strong><br>
+            Staff: <strong>staff</strong> | Parent: <strong>parent</strong></p>
         </div>
     </div>
 

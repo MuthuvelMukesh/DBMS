@@ -62,6 +62,14 @@ $role = $_SESSION['role'];
                     </ul>
                 </div>
             </li>
+
+            <!-- Classes Management -->
+            <li class="nav-item">
+                <a class="nav-link text-white py-3 px-4" href="<?php echo BASE_URL; ?>classes/list.php">
+                    <i class="fas fa-chalkboard"></i>
+                    <span class="sidebar-text ms-2">Classes</span>
+                </a>
+            </li>
             <?php endif; ?>
 
             <!-- Attendance Management -->
@@ -207,6 +215,26 @@ $role = $_SESSION['role'];
                         </li>
                     </ul>
                 </div>
+            </li>
+            <?php endif; ?>
+
+            <!-- Communication / Noticeboard -->
+            <?php if (in_array($role, ['admin'])): ?>
+            <li class="nav-item border-top border-secondary mt-2 pt-2">
+                <a class="nav-link text-white py-3 px-4" href="<?php echo BASE_URL; ?>notices/index.php">
+                    <i class="fas fa-bullhorn"></i>
+                    <span class="sidebar-text ms-2">Noticeboard</span>
+                </a>
+            </li>
+            <?php endif; ?>
+
+            <!-- System Settings -->
+            <?php if (in_array($role, ['admin'])): ?>
+            <li class="nav-item">
+                <a class="nav-link text-white py-3 px-4" href="<?php echo BASE_URL; ?>settings/index.php">
+                    <i class="fas fa-cogs"></i>
+                    <span class="sidebar-text ms-2">Settings</span>
+                </a>
             </li>
             <?php endif; ?>
         </ul>
