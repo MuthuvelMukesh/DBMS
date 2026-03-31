@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS classes (
 -- Students table
 CREATE TABLE IF NOT EXISTS students (
     id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT UNIQUE,
     admission_no VARCHAR(20) UNIQUE NOT NULL,
     full_name VARCHAR(100) NOT NULL,
     dob DATE NOT NULL,
@@ -42,6 +43,7 @@ CREATE TABLE IF NOT EXISTS students (
     status ENUM('active', 'inactive', 'passed_out') NOT NULL DEFAULT 'active',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
     FOREIGN KEY (class_id) REFERENCES classes(id) ON DELETE RESTRICT,
     INDEX idx_admission (admission_no),
     INDEX idx_class (class_id)
@@ -50,6 +52,7 @@ CREATE TABLE IF NOT EXISTS students (
 -- Staff table
 CREATE TABLE IF NOT EXISTS staff (
     id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT UNIQUE,
     staff_id VARCHAR(20) UNIQUE NOT NULL,
     full_name VARCHAR(100) NOT NULL,
     designation VARCHAR(50) NOT NULL,
@@ -61,6 +64,7 @@ CREATE TABLE IF NOT EXISTS staff (
     status ENUM('active', 'inactive', 'retired') NOT NULL DEFAULT 'active',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
     INDEX idx_staff_id (staff_id),
     INDEX idx_designation (designation)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

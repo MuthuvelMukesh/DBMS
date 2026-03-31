@@ -111,6 +111,7 @@ $noticeResult = $conn->query("SELECT * FROM notices WHERE is_active = 1 ORDER BY
     </div>
 <?php endif; ?>
 
+<?php if ($is_admin_or_teacher): ?>
 <div class="row">
     <!-- Total Students Card -->
     <div class="col-xl-3 col-md-6 mb-4">
@@ -267,6 +268,8 @@ $noticeResult = $conn->query("SELECT * FROM notices WHERE is_active = 1 ORDER BY
     </div>
 </div>
 
+<?php endif; ?>
+<?php if ($is_admin_or_teacher): ?>
 <script>
 document.addEventListener("DOMContentLoaded", function() {
     var ctx = document.getElementById("myAreaChart");
@@ -314,5 +317,6 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 });
 </script>
+<?php endif; ?>
 
 <?php require_once 'footer.php'; ?>
