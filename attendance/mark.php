@@ -10,8 +10,12 @@ $error = '';
 $success = '';
 $selected_date = isset($_GET['date']) ? $_GET['date'] : date('Y-m-d');
 $selected_class = isset($_GET['class']) ? (int)$_GET['class'] : 0;
+if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $selected_date) || strtotime($selected_date) === false) {
+    $selected_date = date('Y-m-d');
+}
 
 // Get classes based on role
+$allowed_class_ids = [];
 if ($role === 'teacher') {
     $stmt_classes = $conn->prepare("SELECT id, CONCAT(class_name, ' - ', section) as class_name FROM classes WHERE status = 'active' AND class_teacher_id = ? ORDER BY class_name");
     $stmt_classes->bind_param("i", $_SESSION['user_id']);
@@ -22,6 +26,13 @@ if ($role === 'teacher') {
 } else {
     $classes_result = $conn->query("SELECT id, CONCAT(class_name, ' - ', section) as class_name FROM classes WHERE status = 'active' ORDER BY class_name");
     $classes = $classes_result->fetch_all(MYSQLI_ASSOC);
+}
+
+if ($role === 'teacher') {
+    $allowed_class_ids = array_map('intval', array_column($classes, 'id'));
+    if ($selected_class > 0 && !in_array($selected_class, $allowed_class_ids, true)) {
+        $selected_class = 0;
+    }
 }
 
 $students = [];
@@ -50,8 +61,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $mark_date = isset($_POST['mark_date']) ? $_POST['mark_date'] : '';
     $class_id = isset($_POST['class_id']) ? (int)$_POST['class_id'] : 0;
 
-    if (empty($mark_date) || $class_id == 0) {
+    if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $mark_date) || strtotime($mark_date) === false || $class_id == 0) {
         $error = 'Please select both date and class!';
+    } elseif ($role === 'teacher' && !in_array($class_id, $allowed_class_ids, true)) {
+        $error = 'You are not allowed to mark attendance for this class.';
     } else {
         // First delete existing attendance for this date and class
         $stmt = $conn->prepare("DELETE FROM attendance WHERE class_id = ? AND date = ?");

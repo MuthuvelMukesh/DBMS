@@ -11,10 +11,20 @@ $success = '';
 $error = '';
 
 // Handle Delete/Toggle State
-if (isset($_GET['toggle']) && $_SESSION['role'] === 'admin') {
-    $id = (int)$_GET['toggle'];
-    $conn->query("UPDATE classes SET status = IF(status='active', 'inactive', 'active') WHERE id = $id");
-    $success = "Class status updated.";
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['toggle_class']) && $_SESSION['role'] === 'admin') {
+    $id = isset($_POST['class_id']) ? (int)$_POST['class_id'] : 0;
+    if ($id > 0) {
+        $stmt = $conn->prepare("UPDATE classes SET status = IF(status='active', 'inactive', 'active') WHERE id = ?");
+        $stmt->bind_param("i", $id);
+        if ($stmt->execute()) {
+            $success = "Class status updated.";
+        } else {
+            $error = "Failed to update class status.";
+        }
+        $stmt->close();
+    } else {
+        $error = "Invalid class selected.";
+    }
 }
 
 // Handle Add Class
@@ -139,9 +149,12 @@ $teachers = $conn->query("SELECT u.id, s.full_name, s.staff_id FROM users u INNE
                             </td>
                             <?php if ($_SESSION['role'] === 'admin'): ?>
                             <td>
-                                <a href="?toggle=<?php echo $row['id']; ?>" class="btn btn-sm btn-<?php echo $row['status'] === 'active' ? 'warning' : 'success'; ?> me-1" title="Toggle Status">
-                                    <i class="fas fa-power-off"></i>
-                                </a>
+                                <form method="POST" class="d-inline">
+                                    <input type="hidden" name="class_id" value="<?php echo (int)$row['id']; ?>">
+                                    <button type="submit" name="toggle_class" value="1" class="btn btn-sm btn-<?php echo $row['status'] === 'active' ? 'warning' : 'success'; ?> me-1" title="Toggle Status">
+                                        <i class="fas fa-power-off"></i>
+                                    </button>
+                                </form>
                             </td>
                             <?php endif; ?>
                         </tr>

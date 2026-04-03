@@ -8,7 +8,7 @@ $limit = 10;
 $offset = ($page - 1) * $limit;
 
 // Fetch all transport assignments
-if ($role === 'student') {
+if (in_array($role, ['student', 'parent'], true)) {
     $stmt = $conn->prepare("
         SELECT ta.id, ta.student_id, ta.transport_id, ta.pickup_stop, ta.assignment_date as join_date, ta.status,
                s.admission_no, s.full_name, c.class_name,
@@ -42,7 +42,7 @@ $assignments = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
 
 // Get total count
-if ($role === 'student') {
+if (in_array($role, ['student', 'parent'], true)) {
     $stmt_c = $conn->prepare("SELECT COUNT(*) as total FROM transport_assignments ta JOIN students s ON ta.student_id = s.id WHERE ta.status = 'active' AND s.user_id = ?");
     $stmt_c->bind_param("i", $_SESSION['user_id']);
     $stmt_c->execute();
@@ -93,7 +93,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 <div class="card border-0 shadow-sm mb-4">
     <div class="card-header bg-light border-bottom d-flex justify-content-between align-items-center">
         <h5 class="mb-0">Active Student Assignments</h5>
-        <?php if ($role !== 'student'): ?>
+        <?php if (in_array($role, ['admin', 'staff'], true)): ?>
         <a href="assign.php" class="btn btn-primary btn-sm">
             <i class="fas fa-plus"></i> Assign Student
         </a>
@@ -126,7 +126,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                         <th>Join Date</th>
                         <th>Driver</th>
                         <th>Status</th>
-                        <?php if ($role !== 'student'): ?>
+                        <?php if (in_array($role, ['admin', 'staff'], true)): ?>
                         <th>Action</th>
                         <?php endif; ?>
                     </tr>
@@ -149,7 +149,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                                         <?php echo ucfirst($assignment['status']); ?>
                                     </span>
                                 </td>
-                                <?php if ($role !== 'student'): ?>
+                                <?php if (in_array($role, ['admin', 'staff'], true)): ?>
                                 <td>
                                     <form method="POST" style="display: inline;">
                                         <input type="hidden" name="action" value="remove">
@@ -164,7 +164,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="<?php echo ($role === 'student' ? '8' : '9'); ?>" class="text-center text-muted py-4">No active assignments found</td>
+                            <td colspan="<?php echo (in_array($role, ['admin', 'staff'], true) ? '9' : '8'); ?>" class="text-center text-muted py-4">No active assignments found</td>
                         </tr>
                     <?php endif; ?>
                 </tbody>

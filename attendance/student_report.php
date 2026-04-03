@@ -1,8 +1,14 @@
 <?php
 require_once '../header.php';
 
-// If student, restrict to their own student_id
-if ($role === 'student') {
+// Initialize defaults to avoid undefined variable notices.
+$student_info = null;
+$attendance_records = [];
+$summary = ['present' => 0, 'absent' => 0, 'late' => 0, 'total' => 0];
+$profile_error = '';
+
+// Restrict parent/student style accounts to their own linked student profile.
+if (in_array($role, ['student', 'parent'], true)) {
     $stmt = $conn->prepare("SELECT id FROM students WHERE user_id = ? AND status = 'active'");
     $stmt->bind_param("i", $_SESSION['user_id']);
     $stmt->execute();
@@ -11,15 +17,19 @@ if ($role === 'student') {
     $stmt->close();
     
     if (!$stu) {
-        header('Location: ' . BASE_URL . 'dashboard.php?error=Profile not found');
-        exit();
+        $profile_error = 'No linked student profile was found for your account. Please contact the administrator.';
+        $selected_student = 0;
+    } else {
+        $selected_student = $stu['id'];
     }
-    $selected_student = $stu['id'];
 } else {
     $selected_student = isset($_GET['student']) ? (int)$_GET['student'] : 0;
 }
 
-$selected_month = isset($_GET['month']) ? $_GET['month'] : date('Y-m');
+$selected_month = isset($_GET['month']) ? trim($_GET['month']) : date('Y-m');
+if (!preg_match('/^\d{4}-(0[1-9]|1[0-2])$/', $selected_month)) {
+    $selected_month = date('Y-m');
+}
 
 if ($role === 'admin' || $role === 'teacher') {
     // Get all students for the dropdown
@@ -99,6 +109,12 @@ if ($selected_student > 0) {
                 <input type="month" class="form-control" id="month" name="month" value="<?php echo htmlspecialchars($selected_month); ?>" onchange="this.form.submit();">
             </div>
         </form>
+
+        <?php if (!empty($profile_error)): ?>
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle"></i> <?php echo htmlspecialchars($profile_error); ?>
+        </div>
+        <?php endif; ?>
 
         <?php if ($student_info): ?>
         <div class="row mb-4">

@@ -21,7 +21,7 @@ if ($selected_exam > 0) {
 
     if ($exam_info) {
         // Get results
-        if ($role === 'student') {
+        if (in_array($role, ['student', 'parent'], true)) {
             $stmt = $conn->prepare("
                 SELECT r.id, r.student_id, r.marks_obtained, r.grade,
                        s.admission_no, s.full_name
@@ -94,7 +94,7 @@ if ($selected_exam > 0) {
                     <?php 
                     $rank = 1;
                     foreach ($results as $result): 
-                        $percentage = ($result['marks_obtained'] / $exam_info['max_marks']) * 100;
+                        $percentage = ($exam_info['max_marks'] > 0) ? (($result['marks_obtained'] / $exam_info['max_marks']) * 100) : 0;
                         $passed = ($result['marks_obtained'] >= $exam_info['pass_marks']) ? true : false;
                     ?>
                         <tr>
@@ -183,7 +183,7 @@ if ($selected_exam > 0) {
         </div>
 
         <div class="d-flex gap-2">
-            <?php if ($role !== 'student'): ?>
+            <?php if (in_array($role, ['admin', 'teacher'], true)): ?>
             <a href="add.php?exam=<?php echo $selected_exam; ?>" class="btn btn-primary"><i class="fas fa-edit"></i> Edit Results</a>
             <?php endif; ?>
             <a href="marksheet.php?exam=<?php echo $selected_exam; ?>" target="_blank" class="btn btn-success"><i class="fas fa-file-pdf"></i> View Marksheet</a>

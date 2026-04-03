@@ -1,6 +1,8 @@
 <?php
 require_once 'header.php';
 
+$is_admin_or_teacher = in_array($role ?? ($_SESSION['role'] ?? ''), ['admin', 'teacher'], true);
+
 // Get total students
 $stmt = $conn->prepare("SELECT COUNT(*) as total FROM students WHERE status = 'active'");
 $stmt->execute();

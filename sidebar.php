@@ -29,7 +29,6 @@ $role = $_SESSION['role'];
                     <i class="fas fa-users"></i>
                     <span class="sidebar-text">Students</span>
                     <i class="fas fa-chevron-down ms-auto" style="font-size: 0.8rem; margin-left: auto; opacity: 0.5;"></i>
-                    <i class="fas fa-chevron-down ms-auto" style="font-size: 0.8rem;"></i>
                 </a>
                 <div class="collapse" id="studentMenu">
                     <ul class="navbar-nav flex-column">
@@ -89,10 +88,10 @@ $role = $_SESSION['role'];
                         <li class="nav-item">
                             <a class="nav-link" href="<?php echo BASE_URL; ?>attendance/mark.php">Mark Attendance</a>
                         </li>
-                        <?php endif; ?>
                         <li class="nav-item">
                             <a class="nav-link" href="<?php echo BASE_URL; ?>attendance/report.php">Monthly Report</a>
                         </li>
+                        <?php endif; ?>
                         <li class="nav-item">
                             <a class="nav-link" href="<?php echo BASE_URL; ?>attendance/student_report.php">Student History</a>
                         </li>
@@ -249,6 +248,12 @@ $role = $_SESSION['role'];
                 <a class="nav-link" href="<?php echo BASE_URL; ?>settings/index.php">
                     <i class="fas fa-cogs"></i>
                     <span class="sidebar-text">Settings</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="<?php echo BASE_URL; ?>settings/account_requests.php">
+                    <i class="fas fa-user-check"></i>
+                    <span class="sidebar-text">Account Requests</span>
                 </a>
             </li>
             <?php endif; ?>

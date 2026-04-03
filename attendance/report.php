@@ -7,6 +7,9 @@ if (!in_array($role, ['admin', 'teacher'])) {
 
 $selected_month = isset($_GET['month']) ? $_GET['month'] : date('Y-m');
 $selected_class = isset($_GET['class']) ? (int)$_GET['class'] : 0;
+if (!preg_match('/^\d{4}-(0[1-9]|1[0-2])$/', $selected_month)) {
+    $selected_month = date('Y-m');
+}
 
 // Get classes based on role
 if ($role === 'teacher') {
@@ -19,6 +22,13 @@ if ($role === 'teacher') {
 } else {
     $classes_result = $conn->query("SELECT id, CONCAT(class_name, ' - ', section) as class_name FROM classes WHERE status = 'active' ORDER BY class_name");
     $classes = $classes_result->fetch_all(MYSQLI_ASSOC);
+}
+
+if ($role === 'teacher' && $selected_class > 0) {
+    $allowed_class_ids = array_map('intval', array_column($classes, 'id'));
+    if (!in_array($selected_class, $allowed_class_ids, true)) {
+        $selected_class = 0;
+    }
 }
 
 $attendance_data = [];

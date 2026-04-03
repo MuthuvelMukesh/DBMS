@@ -9,7 +9,7 @@ if ($fee_id == 0) {
 }
 
 // Fetch fee details
-if ($role === 'student') {
+if (in_array($role, ['student', 'parent'], true)) {
     $stmt = $conn->prepare("
         SELECT f.id, f.student_id, f.fee_type, f.amount, f.due_date, f.paid_date,
                f.payment_status, f.receipt_no, f.created_at,

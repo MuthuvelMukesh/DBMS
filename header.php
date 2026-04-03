@@ -29,7 +29,8 @@ $permissions = [
     'admin' => ['students', 'staff', 'classes', 'attendance', 'fees', 'exams', 'results', 'transport', 'hostel', 'settings', 'notices', 'SchoolMS', 'profile.php', 'dashboard.php', 'logout.php'],
     'teacher' => ['students', 'classes', 'attendance', 'exams', 'results', 'SchoolMS', 'profile.php', 'dashboard.php', 'logout.php'],
     'staff' => ['transport', 'hostel', 'SchoolMS', 'profile.php', 'dashboard.php', 'logout.php'],
-    'parent' => ['fees', 'attendance', 'results', 'SchoolMS', 'profile.php', 'dashboard.php', 'logout.php']
+    'parent' => ['fees', 'attendance', 'results', 'SchoolMS', 'profile.php', 'dashboard.php', 'logout.php'],
+    'student' => ['fees', 'attendance', 'results', 'exams', 'transport', 'hostel', 'SchoolMS', 'profile.php', 'dashboard.php', 'logout.php']
 ];
 
 $current_script = basename($_SERVER['PHP_SELF']);

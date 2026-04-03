@@ -6,7 +6,7 @@ $limit = 10;
 $offset = ($page - 1) * $limit;
 
 // Fetch all active hostel assignments
-if ($role === 'student') {
+if (in_array($role, ['student', 'parent'], true)) {
     $stmt = $conn->prepare("
         SELECT ha.id, ha.student_id, ha.room_id, ha.join_date, ha.status,
                s.admission_no, s.full_name, c.class_name,
@@ -40,7 +40,7 @@ $assignments = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
 
 // Get total count
-if ($role === 'student') {
+if (in_array($role, ['student', 'parent'], true)) {
     $stmt_c = $conn->prepare("SELECT COUNT(*) as total FROM hostel_assignments ha JOIN students s ON ha.student_id = s.id WHERE ha.status = 'active' AND s.user_id = ?");
     $stmt_c->bind_param("i", $_SESSION['user_id']);
     $stmt_c->execute();
@@ -59,7 +59,7 @@ $total_pages = ceil($total_records / $limit);
 <div class="card border-0 shadow-sm mb-4">
     <div class="card-header bg-light border-bottom d-flex justify-content-between align-items-center">
         <h5 class="mb-0">Active Student Assignments</h5>
-        <?php if ($role !== 'student'): ?>
+        <?php if (in_array($role, ['admin', 'staff'], true)): ?>
         <a href="assign.php" class="btn btn-primary btn-sm">
             <i class="fas fa-plus"></i> Assign Student
         </a>
@@ -77,7 +77,7 @@ $total_pages = ceil($total_records / $limit);
                         <th>Class</th>
                         <th>Join Date</th>
                         <th>Status</th>
-                        <?php if ($role !== 'student'): ?>
+                        <?php if (in_array($role, ['admin', 'staff'], true)): ?>
                         <th>Action</th>
                         <?php endif; ?>
                     </tr>
@@ -99,7 +99,7 @@ $total_pages = ceil($total_records / $limit);
                                         <?php echo ucfirst($assignment['status']); ?>
                                     </span>
                                 </td>
-                                <?php if ($role !== 'student'): ?>
+                                <?php if (in_array($role, ['admin', 'staff'], true)): ?>
                                 <td>
                                     <a href="vacate.php?assignment_id=<?php echo $assignment['id']; ?>" class="btn btn-warning btn-sm">
                                         <i class="fas fa-sign-out-alt"></i> Vacate
@@ -110,7 +110,7 @@ $total_pages = ceil($total_records / $limit);
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="<?php echo ($role === 'student' ? '7' : '8'); ?>" class="text-center text-muted py-4">No active assignments found</td>
+                            <td colspan="<?php echo (in_array($role, ['admin', 'staff'], true) ? '8' : '7'); ?>" class="text-center text-muted py-4">No active assignments found</td>
                         </tr>
                     <?php endif; ?>
                 </tbody>

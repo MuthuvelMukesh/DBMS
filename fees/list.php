@@ -2,7 +2,7 @@
 require_once '../header.php';
 
 // Adjust based on RBAC
-if ($role === 'student') {
+if (in_array($role, ['student', 'parent'], true)) {
     // Only fetch fees for this student
     $stmt = $conn->prepare("
         SELECT f.id, f.student_id, f.fee_type, f.amount, f.due_date, f.paid_date,

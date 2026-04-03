@@ -7,14 +7,16 @@ $status_filter = isset($_GET['status']) ? $_GET['status'] : '';
 $limit = 10;
 $offset = ($page - 1) * $limit;
 
-// If student, force class filter to their own class
-if ($role === 'student') {
+// If parent/student account, force class filter to their own class.
+if (in_array($role, ['student', 'parent'], true)) {
     $stmt_stu = $conn->prepare("SELECT class_id FROM students WHERE user_id = ?");
     $stmt_stu->bind_param("i", $_SESSION['user_id']);
     $stmt_stu->execute();
     $res_stu = $stmt_stu->get_result();
     if ($stu_row = $res_stu->fetch_assoc()) {
-        $class_filter = $stu_row['class_id'];
+        $class_filter = (int)$stu_row['class_id'];
+    } else {
+        $class_filter = -1;
     }
     $stmt_stu->close();
 }
@@ -95,7 +97,7 @@ $stmt->close();
         <div class="row mb-3">
             <div class="col-md-6">
                 <form method="GET" action="">
-                    <?php if ($role !== 'student'): ?>
+                    <?php if (!in_array($role, ['student', 'parent'], true)): ?>
                     <select name="class" class="form-select" onchange="this.form.submit();">
                         <option value="">All Classes</option>
                         <?php foreach ($classes as $class): ?>

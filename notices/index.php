@@ -11,35 +11,55 @@ if ($_SESSION['role'] !== 'admin') {
 $success = '';
 $error = '';
 
-// Handle Delete (Deactivate actually, or physically delete)
-if (isset($_GET['delete'])) {
-    $id = (int)$_GET['delete'];
-    $conn->query("DELETE FROM notices WHERE id = $id");
-    $success = "Notice deleted successfully.";
-}
-
-// Handle Status Toggle
-if (isset($_GET['toggle'])) {
-    $id = (int)$_GET['toggle'];
-    $conn->query("UPDATE notices SET is_active = NOT is_active WHERE id = $id");
-    $success = "Notice status toggled.";
-}
-
-// Handle Add Notice
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_notice'])) {
-    $title = trim($_POST['title']);
-    $message = trim($_POST['message']);
-    $type = trim($_POST['type']); // info, warning, danger, success
-    
-    if (empty($title) || empty($message)) {
-        $error = "Title and message are required.";
-    } else {
-        $stmt = $conn->prepare("INSERT INTO notices (title, message, type) VALUES (?, ?, ?)");
-        $stmt->bind_param("sss", $title, $message, $type);
-        if ($stmt->execute()) {
-            $success = "Notice published successfully!";
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['delete_notice'])) {
+        $id = isset($_POST['notice_id']) ? (int)$_POST['notice_id'] : 0;
+        if ($id > 0) {
+            $stmt = $conn->prepare("DELETE FROM notices WHERE id = ?");
+            $stmt->bind_param("i", $id);
+            if ($stmt->execute()) {
+                $success = "Notice deleted successfully.";
+            } else {
+                $error = "Failed to delete notice.";
+            }
+            $stmt->close();
         } else {
-            $error = "Database error: " . $conn->error;
+            $error = "Invalid notice selected.";
+        }
+    } elseif (isset($_POST['toggle_notice'])) {
+        $id = isset($_POST['notice_id']) ? (int)$_POST['notice_id'] : 0;
+        if ($id > 0) {
+            $stmt = $conn->prepare("UPDATE notices SET is_active = NOT is_active WHERE id = ?");
+            $stmt->bind_param("i", $id);
+            if ($stmt->execute()) {
+                $success = "Notice status toggled.";
+            } else {
+                $error = "Failed to toggle notice status.";
+            }
+            $stmt->close();
+        } else {
+            $error = "Invalid notice selected.";
+        }
+    } elseif (isset($_POST['add_notice'])) {
+        $title = trim($_POST['title']);
+        $message = trim($_POST['message']);
+        $type = trim($_POST['type']);
+        $allowed_types = ['info', 'warning', 'danger', 'success'];
+        if (!in_array($type, $allowed_types, true)) {
+            $type = 'info';
+        }
+
+        if (empty($title) || empty($message)) {
+            $error = "Title and message are required.";
+        } else {
+            $stmt = $conn->prepare("INSERT INTO notices (title, message, type) VALUES (?, ?, ?)");
+            $stmt->bind_param("sss", $title, $message, $type);
+            if ($stmt->execute()) {
+                $success = "Notice published successfully!";
+            } else {
+                $error = "Database error: " . $conn->error;
+            }
+            $stmt->close();
         }
     }
 }
@@ -103,12 +123,18 @@ $notices = $conn->query("SELECT * FROM notices ORDER BY created_at DESC");
                                 <?php endif; ?>
                             </td>
                             <td>
-                                <a href="?toggle=<?php echo $row['id']; ?>" class="btn btn-sm btn-<?php echo $row['is_active'] ? 'warning' : 'success'; ?> me-1" title="Toggle Visibility">
-                                    <i class="fas fa-eye<?php echo $row['is_active'] ? '-slash' : ''; ?>"></i>
-                                </a>
-                                <a href="?delete=<?php echo $row['id']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Delete this notice permanently?');" title="Delete">
-                                    <i class="fas fa-trash"></i>
-                                </a>
+                                <form method="POST" class="d-inline">
+                                    <input type="hidden" name="notice_id" value="<?php echo (int)$row['id']; ?>">
+                                    <button type="submit" name="toggle_notice" value="1" class="btn btn-sm btn-<?php echo $row['is_active'] ? 'warning' : 'success'; ?> me-1" title="Toggle Visibility">
+                                        <i class="fas fa-eye<?php echo $row['is_active'] ? '-slash' : ''; ?>"></i>
+                                    </button>
+                                </form>
+                                <form method="POST" class="d-inline" onsubmit="return confirm('Delete this notice permanently?');">
+                                    <input type="hidden" name="notice_id" value="<?php echo (int)$row['id']; ?>">
+                                    <button type="submit" name="delete_notice" value="1" class="btn btn-sm btn-danger" title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
                             </td>
                         </tr>
                         <?php endwhile; ?>

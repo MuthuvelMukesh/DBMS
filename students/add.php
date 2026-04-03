@@ -66,10 +66,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $username = $admission_no;
                 // Default password is the admission number
                 $default_password = password_hash($username, PASSWORD_DEFAULT);
-                $role = 'student';
+                $new_user_role = 'student';
                 
                 $stmt_user = $conn->prepare("INSERT INTO users (username, password, role, status) VALUES (?, ?, ?, 'active')");
-                $stmt_user->bind_param("sss", $username, $default_password, $role);
+                $stmt_user->bind_param("sss", $username, $default_password, $new_user_role);
                 $stmt_user->execute();
                 $user_id = $conn->insert_id;
                 $stmt_user->close();

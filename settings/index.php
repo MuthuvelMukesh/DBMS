@@ -71,6 +71,12 @@ $curr_logo = $sys_settings['logo_path'] ?? '';
 <div class="container-fluid py-4">
     <h1 class="page-title"><i class="fas fa-cogs text-primary"></i> System Settings</h1>
 
+    <div class="mb-3">
+        <a href="account_requests.php" class="btn btn-outline-primary">
+            <i class="fas fa-user-check"></i> Manage Account Requests
+        </a>
+    </div>
+
     <?php if ($success): ?>
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             <i class="fas fa-check-circle"></i> <?php echo htmlspecialchars($success); ?>

@@ -197,9 +197,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </form>
 
         <div class="mt-3 text-center text-muted small">
-            <p>Demo Credentials (Password: <strong>admin123</strong>):<br>
-            Admin: <strong>admin</strong> | Teacher: <strong>teacher</strong><br>
-            Staff: <strong>staff</strong> | Parent: <strong>parent</strong></p>
+            <p class="mb-1">Demo Login: Username <strong>admin</strong> | Password <strong>admin123</strong></p>
+            <p class="mb-0">No public role registration is enabled. Accounts and roles are created by the admin for security and access control.</p>
+        </div>
+
+        <div class="mt-2 text-center">
+            <a href="<?php echo BASE_URL; ?>request_account.php" class="text-decoration-none small fw-semibold">
+                Need an account? Submit a request
+            </a>
         </div>
     </div>
 
