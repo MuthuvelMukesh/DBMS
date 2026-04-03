@@ -151,3 +151,25 @@ Written on the lines connecting Entities to Relationships.
 *   **N to 1**: Many Students use One Transport Route.
 *   **1 to N**: One Exam yields Many Results (one for each student).
 *   **1 to 1**: One User Login maps strictly to One Staff Employee profile.
+
+## AI Generator Prompt (Gemini Nana Banana)
+
+You can copy and paste the following prompt directly into Gemini (or any advanced LLM) to generate or refine a full, professional ER Diagram using strict Chen Notation.
+
+```text
+Act as an expert Database Architect. I need you to create a full, professional Entity-Relationship (ER) Diagram for a comprehensive School Management System. 
+
+You must strictly adhere to all Chen Notation principles:
+1. Entities must be represented by Rectangles.
+2. Weak Entities must be represented by Double Rectangles.
+3. Relationships must be represented by Diamonds.
+4. Attributes must be represented by Ovals.
+5. Multivalued Attributes must be represented by Double Ovals.
+6. Derived Attributes must be represented by Dashed Ovals.
+7. Primary Keys must be represented by Ovals with Underlined text.
+8. Define the full Cardinality (1:1, 1:N, M:N) and Participation constraints (Total/Partial) clearly on the relationship lines.
+
+The system includes the following core modules: Users (RBAC: Admin, Teacher, Staff, Parent), Students, Staff, Classes, Attendance, Fees, Exams, Results, Transport, Hostel, and Notices. 
+
+Please provide the output as a fully renderable syntax (such as Mermaid.js flowchart with explicit shape declarations matching Chen notation, or PlantUML) OR provide a highly detailed textual blueprint of the diagram that can be directly imported or drawn into a tool like draw.io, Visio, or Lucidchart. Make the architecture production-ready, highly detailed, and professional.
+```

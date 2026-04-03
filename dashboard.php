@@ -119,8 +119,8 @@ $noticeResult = $conn->query("SELECT * FROM notices WHERE is_active = 1 ORDER BY
     <div class="col-xl-3 col-md-6 mb-4">
         <div class="card bg-primary text-white shadow-sm h-100 py-2">
             <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
+                <div class="row g-0 align-items-center">
+                    <div class="col me-2">
                         <div class="text-xs font-weight-bold text-uppercase mb-1" style="font-size: 0.8rem; letter-spacing: 0.5px; opacity: 0.8;">Total Students</div>
                         <div class="h5 mb-0 font-weight-bold" style="font-weight: 800; font-size: 1.75rem;"><?php echo $totalStudents; ?></div>
                     </div>
@@ -137,8 +137,8 @@ $noticeResult = $conn->query("SELECT * FROM notices WHERE is_active = 1 ORDER BY
     <div class="col-xl-3 col-md-6 mb-4">
         <div class="card bg-success text-white shadow-sm h-100 py-2">
             <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
+                <div class="row g-0 align-items-center">
+                    <div class="col me-2">
                         <div class="text-xs font-weight-bold text-uppercase mb-1" style="font-size: 0.8rem; letter-spacing: 0.5px; opacity: 0.8;">Staff Members</div>
                         <div class="h5 mb-0 font-weight-bold" style="font-weight: 800; font-size: 1.75rem;"><?php echo $totalStaff; ?></div>
                     </div>
@@ -155,8 +155,8 @@ $noticeResult = $conn->query("SELECT * FROM notices WHERE is_active = 1 ORDER BY
     <div class="col-xl-3 col-md-6 mb-4">
         <div class="card bg-warning text-white shadow-sm h-100 py-2">
             <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
+                <div class="row g-0 align-items-center">
+                    <div class="col me-2">
                         <div class="text-xs font-weight-bold text-uppercase mb-1" style="font-size: 0.8rem; letter-spacing: 0.5px; opacity: 0.8;">Pending Fees</div>
                         <div class="h5 mb-0 font-weight-bold" style="font-weight: 800; font-size: 1.5rem;">₹<?php echo $pendingFees; ?></div>
                     </div>
@@ -173,15 +173,15 @@ $noticeResult = $conn->query("SELECT * FROM notices WHERE is_active = 1 ORDER BY
     <div class="col-xl-3 col-md-6 mb-4">
         <div class="card bg-info text-white shadow-sm h-100 py-2">
             <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
+                <div class="row g-0 align-items-center">
+                    <div class="col me-2">
                         <div class="text-xs font-weight-bold text-uppercase mb-1" style="font-size: 0.8rem; letter-spacing: 0.5px; opacity: 0.8;">Attendance (Today)</div>
-                        <div class="row no-gutters align-items-center">
+                        <div class="row g-0 align-items-center">
                             <div class="col-auto">
                                 <div class="h5 mb-0 mr-3 font-weight-bold" style="font-weight: 800; font-size: 1.5rem; margin-right: 15px;"><?php echo $attendancePercent; ?>%</div>
                             </div>
                             <div class="col">
-                                <div class="progress progress-sm mr-2" style="height: 0.5rem; margin-right:15px; background-color: rgba(255,255,255,0.2);">
+                                <div class="progress progress-sm me-2" style="height: 0.5rem; margin-right:15px; background-color: rgba(255,255,255,0.2);">
                                     <div class="progress-bar bg-white" role="progressbar" style="width: <?php echo $attendancePercent; ?>%" aria-valuenow="<?php echo $attendancePercent; ?>" aria-valuemin="0" aria-valuemax="100"></div>
                                 </div>
                             </div>
