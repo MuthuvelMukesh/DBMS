@@ -45,13 +45,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Invalid email format!';
     } else {
         $stmt = $conn->prepare("
-            UPDATE staff 
+            UPDATE staff
             SET full_name = ?, designation = ?, department = ?, contact = ?, email = ?, salary = ?, join_date = ?, status = ?
             WHERE id = ?
         ");
         $stmt->bind_param("sssssdssi", $full_name, $designation, $department, $contact, $email, $salary, $join_date, $status, $staff_id);
 
         if ($stmt->execute()) {
+            
+            // Sync with users table
+            $role_lower = strtolower($designation);
+            $new_user_role = 'staff';
+            if (strpos($role_lower, 'teacher') !== false || strpos($role_lower, 'prof') !== false || strpos($role_lower, 'lecturer') !== false) {
+                $new_user_role = 'teacher';
+            }
+            if (!empty($staff['user_id'])) {
+                $stmt_user = $conn->prepare("UPDATE users SET role = ?, status = ? WHERE id = ?");
+                $stmt_user->bind_param("ssi", $new_user_role, $status, $staff['user_id']);
+                $stmt_user->execute();
+                $stmt_user->close();
+            }
+
             $success = 'Staff member updated successfully!';
             $staff = [
                 'id' => $staff_id,

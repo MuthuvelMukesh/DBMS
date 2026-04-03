@@ -15,7 +15,7 @@ if ($staff_id == 0) {
 }
 
 // Fetch staff details
-$stmt = $conn->prepare("SELECT staff_id, full_name FROM staff WHERE id = ?");
+$stmt = $conn->prepare("SELECT user_id, staff_id, full_name FROM staff WHERE id = ?");
 $stmt->bind_param("i", $staff_id);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -35,6 +35,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_delete'])) {
     $stmt->bind_param("i", $staff_id);
 
     if ($stmt->execute()) {
+        // Also deactivate the user account
+        if (!empty($staff['user_id'])) {
+            $stmt_user = $conn->prepare("UPDATE users SET status = 'inactive' WHERE id = ?");
+            $stmt_user->bind_param("i", $staff['user_id']);
+            $stmt_user->execute();
+            $stmt_user->close();
+        }
         $stmt->close();
         header("Location: list.php?success=Staff member deleted successfully");
         exit();

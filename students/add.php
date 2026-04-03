@@ -54,19 +54,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if (empty($error)) {
-            $stmt = $conn->prepare("
-                INSERT INTO students (admission_no, full_name, dob, gender, class_id, section, parent_name, contact, address, photo, status)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active')
-            ");
-            $stmt->bind_param("ssssisssss", $admission_no, $full_name, $dob, $gender, $class_id, $section, $parent_name, $contact, $address, $photo);
+            $conn->begin_transaction();
+            try {
+                // 1. Create User Account
+                $username = $admission_no;
+                // Default password is the admission number
+                $default_password = password_hash($username, PASSWORD_DEFAULT);
+                $role = 'student';
+                
+                $stmt_user = $conn->prepare("INSERT INTO users (username, password, role, status) VALUES (?, ?, ?, 'active')");
+                $stmt_user->bind_param("sss", $username, $default_password, $role);
+                $stmt_user->execute();
+                $user_id = $conn->insert_id;
+                $stmt_user->close();
 
-            if ($stmt->execute()) {
-                $success = 'Student added successfully! Admission No: ' . $admission_no;
-                $_POST = [];
-            } else {
-                $error = 'Error adding student: ' . $stmt->error;
+                // 2. Create Student Profile
+                $stmt = $conn->prepare("
+                    INSERT INTO students (admission_no, user_id, full_name, dob, gender, class_id, section, parent_name, contact, address, photo, status)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active')
+                ");
+                $stmt->bind_param("sisssisssss", $admission_no, $user_id, $full_name, $dob, $gender, $class_id, $section, $parent_name, $contact, $address, $photo);
+
+                if ($stmt->execute()) {
+                    $conn->commit();
+                    $success = 'Student added successfully! Admission No: ' . $admission_no . ' (Login: ' . $username . ' / Pass: ' . $username . ')';
+                    $_POST = [];
+                } else {
+                    throw new Exception($stmt->error);
+                }
+                $stmt->close();
+            } catch (Exception $e) {
+                $conn->rollback();
+                $error = 'Error adding student: ' . $e->getMessage();
             }
-            $stmt->close();
         }
     }
 }

@@ -33,19 +33,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else if (!filter_var($email, FILTER_VALIDATE_EMAIL) && !empty($email)) {
         $error = 'Invalid email format!';
     } else {
-        $stmt = $conn->prepare("
-            INSERT INTO staff (staff_id, full_name, designation, department, contact, email, salary, join_date, status)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'active')
-        ");
-        $stmt->bind_param("ssssssds", $staff_id, $full_name, $designation, $department, $contact, $email, $salary, $join_date);
+        $conn->begin_transaction();
+        try {
+            // Determine role loosely based on designation
+            $role_lower = strtolower($designation);
+            $new_user_role = 'staff';
+            if (strpos($role_lower, 'teacher') !== false || strpos($role_lower, 'prof') !== false || strpos($role_lower, 'lecturer') !== false) {
+                $new_user_role = 'teacher';
+            }
 
-        if ($stmt->execute()) {
-            $success = 'Staff member added successfully! Staff ID: ' . $staff_id;
-            $_POST = [];
-        } else {
-            $error = 'Error adding staff: ' . $stmt->error;
+            // 1. Create User Account
+            $username = $staff_id;
+            // Default password is the staff ID
+            $default_password = password_hash($username, PASSWORD_DEFAULT);
+            
+            $stmt_user = $conn->prepare("INSERT INTO users (username, password, role, status) VALUES (?, ?, ?, 'active')");
+            $stmt_user->bind_param("sss", $username, $default_password, $new_user_role);
+            $stmt_user->execute();
+            $user_id = $conn->insert_id;
+            $stmt_user->close();
+
+            // 2. Create Staff Profile
+            $stmt = $conn->prepare("
+                INSERT INTO staff (staff_id, user_id, full_name, designation, department, contact, email, salary, join_date, status)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'active')
+            ");
+            $stmt->bind_param("sisssssds", $staff_id, $user_id, $full_name, $designation, $department, $contact, $email, $salary, $join_date);
+
+            if ($stmt->execute()) {
+                $conn->commit();
+                $success = 'Staff member added successfully! Staff ID: ' . $staff_id . ' (Login: ' . $username . ' / Pass: ' . $username . ')';
+                $_POST = [];
+            } else {
+                throw new Exception($stmt->error);
+            }
+            $stmt->close();
+        } catch (Exception $e) {
+            $conn->rollback();
+            $error = 'Error adding staff: ' . $e->getMessage();
         }
-        $stmt->close();
     }
 }
 ?>

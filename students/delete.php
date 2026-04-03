@@ -14,7 +14,7 @@ if ($student_id == 0) {
 }
 
 // Fetch student details
-$stmt = $conn->prepare("SELECT admission_no, full_name, photo FROM students WHERE id = ?");
+$stmt = $conn->prepare("SELECT user_id, admission_no, full_name, photo FROM students WHERE id = ?");
 $stmt->bind_param("i", $student_id);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -35,6 +35,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_delete'])) {
     $stmt->bind_param("i", $student_id);
 
     if ($stmt->execute()) {
+        // Also deactivate the user account
+        if (!empty($student['user_id'])) {
+            $stmt_user = $conn->prepare("UPDATE users SET status = 'inactive' WHERE id = ?");
+            $stmt_user->bind_param("i", $student['user_id']);
+            $stmt_user->execute();
+            $stmt_user->close();
+        }
+
         // Delete photo if exists
         if (!empty($student['photo'])) {
             $photo_path = '../uploads/' . $student['photo'];

@@ -79,6 +79,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->bind_param("sssissssssi", $full_name, $dob, $gender, $class_id, $section, $parent_name, $contact, $address, $photo, $status, $student_id);
 
             if ($stmt->execute()) {
+                
+                // Sync with users table
+                if (!empty($student['user_id'])) {
+                    $stmt_user = $conn->prepare("UPDATE users SET status = ? WHERE id = ?");
+                    $stmt_user->bind_param("si", $status, $student['user_id']);
+                    $stmt_user->execute();
+                    $stmt_user->close();
+                }
+
                 $success = 'Student updated successfully!';
                 $student = [
                     'id' => $student_id,
