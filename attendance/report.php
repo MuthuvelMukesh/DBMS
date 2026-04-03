@@ -1,12 +1,25 @@
 <?php
 require_once '../header.php';
+if (!in_array($role, ['admin', 'teacher'])) {
+    header('Location: ' . BASE_URL . 'dashboard.php?error=Access Denied');
+    exit();
+}
 
 $selected_month = isset($_GET['month']) ? $_GET['month'] : date('Y-m');
 $selected_class = isset($_GET['class']) ? (int)$_GET['class'] : 0;
 
-// Get classes
-$classes_result = $conn->query("SELECT id, CONCAT(class_name, ' - ', section) as class_name FROM classes WHERE status = 'active' ORDER BY class_name");
-$classes = $classes_result->fetch_all(MYSQLI_ASSOC);
+// Get classes based on role
+if ($role === 'teacher') {
+    $stmt_classes = $conn->prepare("SELECT id, CONCAT(class_name, ' - ', section) as class_name FROM classes WHERE status = 'active' AND class_teacher_id = ? ORDER BY class_name");
+    $stmt_classes->bind_param("i", $_SESSION['user_id']);
+    $stmt_classes->execute();
+    $classes_result = $stmt_classes->get_result();
+    $classes = $classes_result->fetch_all(MYSQLI_ASSOC);
+    $stmt_classes->close();
+} else {
+    $classes_result = $conn->query("SELECT id, CONCAT(class_name, ' - ', section) as class_name FROM classes WHERE status = 'active' ORDER BY class_name");
+    $classes = $classes_result->fetch_all(MYSQLI_ASSOC);
+}
 
 $attendance_data = [];
 

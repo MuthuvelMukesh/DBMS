@@ -1,15 +1,31 @@
 <?php
 require_once '../header.php';
 
-$selected_student = isset($_GET['student']) ? (int)$_GET['student'] : 0;
+// If student, restrict to their own student_id
+if ($role === 'student') {
+    $stmt = $conn->prepare("SELECT id FROM students WHERE user_id = ? AND status = 'active'");
+    $stmt->bind_param("i", $_SESSION['user_id']);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    $stu = $res->fetch_assoc();
+    $stmt->close();
+    
+    if (!$stu) {
+        header('Location: ' . BASE_URL . 'dashboard.php?error=Profile not found');
+        exit();
+    }
+    $selected_student = $stu['id'];
+} else {
+    $selected_student = isset($_GET['student']) ? (int)$_GET['student'] : 0;
+}
+
 $selected_month = isset($_GET['month']) ? $_GET['month'] : date('Y-m');
 
-// Get all students
-$students_result = $conn->query("SELECT id, admission_no, CONCAT(full_name, ' (', admission_no, ')') as display_name FROM students WHERE status = 'active' ORDER BY full_name");
-$students_list = $students_result->fetch_all(MYSQLI_ASSOC);
-
-$attendance_records = [];
-$student_info = null;
+if ($role === 'admin' || $role === 'teacher') {
+    // Get all students for the dropdown
+    $students_result = $conn->query("SELECT id, admission_no, CONCAT(full_name, ' (' , admission_no, ')') as display_name FROM students WHERE status = 'active' ORDER BY full_name");
+    $students_list = $students_result->fetch_all(MYSQLI_ASSOC);
+}
 
 if ($selected_student > 0) {
     // Get student info
@@ -65,6 +81,7 @@ if ($selected_student > 0) {
     </div>
     <div class="card-body">
         <form method="GET" action="" class="row mb-3">
+            <?php if ($role === 'admin' || $role === 'teacher'): ?>
             <div class="col-md-8">
                 <label for="student" class="form-label">Select Student</label>
                 <select class="form-select" id="student" name="student" onchange="this.form.submit();">
@@ -76,6 +93,7 @@ if ($selected_student > 0) {
                     <?php endforeach; ?>
                 </select>
             </div>
+            <?php endif; ?>
             <div class="col-md-4">
                 <label for="month" class="form-label">Month</label>
                 <input type="month" class="form-control" id="month" name="month" value="<?php echo htmlspecialchars($selected_month); ?>" onchange="this.form.submit();">

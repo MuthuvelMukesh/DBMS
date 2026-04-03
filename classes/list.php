@@ -48,9 +48,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_class']) && $_SES
 
 // Fetch all classes
 $classes_query = "
-    SELECT c.*, u.username as teacher_name 
-    FROM classes c 
-    LEFT JOIN users u ON c.class_teacher_id = u.id 
+    SELECT c.*, s.full_name as teacher_name
+    FROM classes c
+    LEFT JOIN staff s ON c.class_teacher_id = s.user_id
     ORDER BY 
         CASE 
             WHEN c.class_name LIKE 'Pre%' THEN 1
@@ -74,7 +74,7 @@ $classes_query = "
 $classes = $conn->query($classes_query);
 
 // Fetch teachers for dropdown
-$teachers = $conn->query("SELECT id, username FROM users WHERE role = 'teacher' AND status = 'active'");
+$teachers = $conn->query("SELECT u.id, s.full_name, s.staff_id FROM users u INNER JOIN staff s ON u.id = s.user_id WHERE u.role IN ('admin', 'teacher') AND u.status = 'active'");
 ?>
 
 <div class="container-fluid py-4">
@@ -182,7 +182,7 @@ $teachers = $conn->query("SELECT id, username FROM users WHERE role = 'teacher' 
                         <select class="form-select" name="class_teacher_id">
                             <option value="">-- Leave Unassigned --</option>
                             <?php while ($tRow = $teachers->fetch_assoc()): ?>
-                                <option value="<?php echo $tRow['id']; ?>"><?php echo htmlspecialchars(ucfirst($tRow['username'])); ?></option>
+                                <option value="<?php echo $tRow['id']; ?>"><?php echo htmlspecialchars($tRow['full_name'] . ' (' . $tRow['staff_id'] . ')'); ?></option>
                             <?php endwhile; ?>
                         </select>
                     </div>
