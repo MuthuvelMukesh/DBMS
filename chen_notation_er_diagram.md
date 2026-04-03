@@ -1,78 +1,149 @@
 # School Management System - ER Diagram (Chen Notation)
 
-## 📄 Abstract
-This document outlines the complete Entity-Relationship (ER) architecture for the School Management System (SchoolMS) using Chen Notation. To accurately represent the entire application scope, the schema incorporates fundamental Role-Based Access Control (RBAC)—spanning Admins, Teachers, Staff, and Parents—alongside all critical operational modules: **Students, Staff, Classes, Attendance, Fees, Exams, Results, Transport, Hostel, Notices, and Settings**. 
+## Abstract
+This document outlines the complete Entity-Relationship (ER) architecture for the School Management System (SchoolMS) using Chen Notation. To accurately represent the entire application scope, the schema incorporates fundamental Role-Based Access Control (RBAC) spanning Admins, Teachers, Staff, and Parents, alongside all critical operational modules: **Students, Staff, Classes, Attendance, Fees, Exams, Results, Transport, Hostel, Notices, and Settings**.
 
-Because rendering a 12+ entity Chen ER diagram in a single AI generation can cause visual artifacting and overlapping lines, this guide provides the prompt text for the **Full Comprehensive System**, but recommends drawing or generating it utilizing a modular strategy if visual clarity is needed.
+## Complete System Chen ER Diagram
+Below is the full Chen Notation ER diagram generated dynamically using Mermaid.js.
 
----
+```mermaid
+graph TD
+    %% Styling for Chen Notation
+    classDef entity fill:#3b82f6,stroke:#1e40af,stroke-width:2px,color:#fff,shape:rect;
+    classDef relationship fill:#10b981,stroke:#047857,stroke-width:2px,color:#fff,shape:diamond;
+    classDef attribute fill:#f8fafc,stroke:#94a3b8,stroke-width:1px,color:#0f172a,shape:circle;
+    classDef pk fill:#f1f5f9,stroke:#0f172a,stroke-width:2px,color:#0f172a,shape:circle;
 
-This document provides the exact structural details and prompts required to generate a correct **Chen Notation** Entity-Relationship (ER) diagram for the SchoolMS project using generative AI (like Gemini) or a diagramming tool.
+    %% Entities
+    E_User["USER"]:::entity
+    E_Student["STUDENT"]:::entity
+    E_Staff["STAFF"]:::entity
+    E_Class["CLASS"]:::entity
+    E_Attendance["ATTENDANCE"]:::entity
+    E_Fee["FEE"]:::entity
+    E_Exam["EXAM"]:::entity
+    E_Result["RESULT"]:::entity
+    E_Transport["TRANSPORT"]:::entity
+    E_Hostel["HOSTEL"]:::entity
+    E_Notice["NOTICE"]:::entity
 
-## 🤖 Prompt for Gemini / AI Image Generator (Full System incl. All Modules)
+    %% Primary Keys
+    PK_User(("<u>id</u>")):::pk
+    PK_Student(("<u>id</u>")):::pk
+    PK_Staff(("<u>id</u>")):::pk
+    PK_Class(("<u>id</u>")):::pk
+    PK_Attendance(("<u>id</u>")):::pk
+    PK_Fee(("<u>id</u></u>")):::pk
+    PK_Exam(("<u>id</u>")):::pk
+    PK_Result(("<u>id</u>")):::pk
+    PK_Transport(("<u>id</u>")):::pk
+    PK_Hostel(("<u>id</u>")):::pk
+    PK_Notice(("<u>id</u>")):::pk
 
-*Copy and paste the exact prompt below into your AI tool to generate the visual diagram containing ALL current application modules and RBAC operations. The prompt strictly enforces Chen Notation principles and a standard white background.*
+    %% Normal Attributes
+    A_User1(("username")):::attribute
+    A_User2(("role")):::attribute
+    A_Student1(("admission_no")):::attribute
+    A_Student2(("name")):::attribute
+    A_Staff1(("employee_id")):::attribute
+    A_Staff2(("designation")):::attribute
+    A_Class1(("class_name")):::attribute
+    A_Class2(("section")):::attribute
+    A_Att1(("date")):::attribute
+    A_Att2(("status")):::attribute
+    A_Fee1(("amount")):::attribute
+    A_Fee2(("payment_status")):::attribute
+    A_Exam1(("subject")):::attribute
+    A_Exam2(("date")):::attribute
+    A_Result1(("marks")):::attribute
+    A_Result2(("grade")):::attribute
+    A_Trans1(("route_name")):::attribute
+    A_Host1(("room_no")):::attribute
+    A_Not1(("title")):::attribute
 
-```text
-Generate a high-quality, professional Entity-Relationship Diagram (ERD) using STRICT CHEN NOTATION for a complete School Management System. 
+    %% Link PKs to Entities
+    PK_User --- E_User
+    PK_Student --- E_Student
+    PK_Staff --- E_Staff
+    PK_Class --- E_Class
+    PK_Attendance --- E_Attendance
+    PK_Fee --- E_Fee
+    PK_Exam --- E_Exam
+    PK_Result --- E_Result
+    PK_Transport --- E_Transport
+    PK_Hostel --- E_Hostel
+    PK_Notice --- E_Notice
 
-Visual Requirements:
-- Use a completely STANDARD WHITE BACKGROUND (#FFFFFF).
-- All lines and text should be clearly legible (black or dark blue).
-- Do not use Crow's Foot notation; strictly use Chen's Notation rules.
-- Space out the entities to prevent overlapping lines.
+    %% Link Attributes to Entities
+    A_User1 --- E_User
+    A_User2 --- E_User
+    A_Student1 --- E_Student
+    A_Student2 --- E_Student
+    A_Staff1 --- E_Staff
+    A_Staff2 --- E_Staff
+    A_Class1 --- E_Class
+    A_Class2 --- E_Class
+    A_Att1 --- E_Attendance
+    A_Att2 --- E_Attendance
+    A_Fee1 --- E_Fee
+    A_Fee2 --- E_Fee
+    A_Exam1 --- E_Exam
+    A_Exam2 --- E_Exam
+    A_Result1 --- E_Result
+    A_Result2 --- E_Result
+    A_Trans1 --- E_Transport
+    A_Host1 --- E_Hostel
+    A_Not1 --- E_Notice
 
-Chen Notation Rules to Apply:
-1. Strong Entities must be in Rectangles.
-2. Relationships must be in Diamonds.
-3. Attributes must be in Ovals/Ellipses connected to their Entities.
-4. Primary Keys must be placed in Ovals with the text UNDERLINED.
-5. Provide Cardinality letters (1, M, N) next to the linking lines between Entities and Relationships.
+    %% Relationships
+    R_UserStudent{"Acts As"}:::relationship
+    R_UserStaff{"Acts As"}:::relationship
+    R_StudentClass{"Enrolled In"}:::relationship
+    R_StaffClass{"Manages"}:::relationship
+    R_StudentAtt{"Records"}:::relationship
+    R_ClassAtt{"Associated"}:::relationship
+    R_StudentFee{"Pays"}:::relationship
+    R_ClassExam{"Conducts"}:::relationship
+    R_ExamResult{"Yields"}:::relationship
+    R_StudentResult{"Achieves"}:::relationship
+    R_StudentTrans{"Uses"}:::relationship
+    R_StudentHostel{"Resides In"}:::relationship
+    R_UserNotice{"Publishes"}:::relationship
 
-Entities and their Attributes to draw:
-- USER: ID (Underlined), Username, Password, Role (Admin/Teacher/Staff/Parent).
-- STUDENT: ID (Underlined), AdmissionNo, Name.
-- STAFF: ID (Underlined), EmployeeID, Designation.
-- CLASS: ID (Underlined), ClassName, Section.
-- ATTENDANCE: ID (Underlined), Date, Status.
-- FEE: ID (Underlined), Amount, PaymentStatus.
-- EXAM: ID (Underlined), Subject, Date.
-- RESULT: ID (Underlined), Marks, Grade.
-- TRANSPORT: ID (Underlined), RouteName, VehicleNo.
-- HOSTEL: ID (Underlined), RoomNo, BedType.
-- NOTICE: ID (Underlined), Title, Message.
+    %% Map Relationships with Cardinality
+    E_User ---|1| R_UserStudent ---|1| E_Student
+    E_User ---|1| R_UserStaff ---|1| E_Staff
+    E_Student ---|N| R_StudentClass ---|1| E_Class
+    E_Staff ---|1| R_StaffClass ---|1| E_Class
+    
+    E_Student ---|1| R_StudentAtt ---|N| E_Attendance
+    E_Class ---|1| R_ClassAtt ---|N| E_Attendance
 
-Relationships to draw:
-- USER -> "Acts As" (Diamond) -> STUDENT (1 to 1) 
-- USER -> "Acts As" (Diamond) -> STAFF (1 to 1)
-- USER (Parent) -> "Wards" (Diamond) -> STUDENT (1 to N)
-- STUDENT -> "Enrolled In" (Diamond) -> CLASS (N to 1)
-- STAFF (Teacher) -> "Manages" (Diamond) -> CLASS (1 to 1)
-- STUDENT -> "Pays" (Diamond) -> FEE (1 to N)
-- STUDENT -> "Records" (Diamond) -> ATTENDANCE (1 to N)
-- CLASS -> "Conducts" (Diamond) -> EXAM (1 to N)
-- EXAM -> "Yields" (Diamond) -> RESULT (1 to N)
-- STUDENT -> "Achieves" (Diamond) -> RESULT (1 to N)
-- STUDENT -> "Uses" (Diamond) -> TRANSPORT (N to 1)
-- STUDENT -> "Resides In" (Diamond) -> HOSTEL (N to 1)
-- USER (Admin) -> "Publishes" (Diamond) -> NOTICE (1 to N)
+    E_Student ---|1| R_StudentFee ---|N| E_Fee
+    
+    E_Class ---|1| R_ClassExam ---|N| E_Exam
+    E_Exam ---|1| R_ExamResult ---|N| E_Result
+    E_Student ---|1| R_StudentResult ---|N| E_Result
+
+    E_Student ---|N| R_StudentTrans ---|1| E_Transport
+    E_Student ---|N| R_StudentHostel ---|1| E_Hostel
+    
+    E_User ---|1| R_UserNotice ---|N| E_Notice
 ```
 
----
-
-## 📐 Chen Notation Key Principles Explained
+## Chen Notation Key Principles Explained
 
 If you are using a drag-and-drop tool (like draw.io, Lucidchart, or Visio) instead of an AI generator, follow these visual rules:
 
-### 1. Entities (Rectangles)
-Represent the tables in your database (e.g., `Users`, `Students`, `Fees`, `Exams`).
+### 1. Entities (Rectangles / Blue)
+Represent the tables in your database.
 
-### 2. Attributes (Ellipses / Ovals)
+### 2. Attributes (Ellipses / Ovals / White)
 Represent the columns of your tables. Connect these with a solid straight line to their parent Entity.
 *   **Primary Keys (Underlined Text):** E.g., `id` (Always underline the ID).
 *   **Standard Attributes:** E.g., `amount`, `class_name`, `status`.
 
-### 3. Relationships (Diamonds)
+### 3. Relationships (Diamonds / Green)
 Represent how entities connect via Foreign Keys in the database operations. E.g., The foreign key `student_id` in the `fees` table creates the "Pays" diamond relationship.
 
 ### 4. Cardinality (Lines with Numbers/Letters)
@@ -80,23 +151,3 @@ Written on the lines connecting Entities to Relationships.
 *   **N to 1**: Many Students use One Transport Route.
 *   **1 to N**: One Exam yields Many Results (one for each student).
 *   **1 to 1**: One User Login maps strictly to One Staff Employee profile.
-
----
-
-## 🗄️ Detailed Database Mapping for Chen Notation (All Modules)
-
-If you want to map the entire database out manually in Chen Notation, here is the full comprehensive map of operations:
-
-| Entity | Primary Key (Underline) | Normal Attributes (Ovals) | Relationships (Diamonds) |
-| :--- | :--- | :--- | :--- |
-| **USER** | `id` | `username`, `password`, `role` (Admin/Teacher/Staff/Parent) | `Acts_As` (1:1 with Staff/Student), `Wards` (1:N with Student), `Publishes` (1:N with Notice) |
-| **STUDENT** | `id` | `admission_no`, `first_name`, `dob` | `Enrolled_In` (N:1 with Class), `Pays` (1:N with Fee), `Records` (1:N with Attendance), `Achieves` (1:N with Result) |
-| **STAFF** | `id` | `employee_id`, `first_name`, `department` | `Manages` (1:1 with Class) |
-| **CLASS** | `id` | `class_name`, `section`, `status` | `Contains` (1:N with Student), `Conducts` (1:N with Exam) |
-| **ATTENDANCE** | `id` | `date`, `status`, `remarks` | *(Connected via Student Records)* |
-| **FEE** | `id` | `fee_type`, `amount`, `payment_status`| *(Connected via Student Pays)* |
-| **EXAM** | `id` | `exam_name`, `subject`, `exam_date`| `Yields` (1:N with Result) |
-| **RESULT** | `id` | `marks_obtained`, `total_marks`, `grade`| *(Intersection of Exam & Student)* |
-| **TRANSPORT** | `id` | `route_name`, `vehicle_no`, `driver_name`| `Uses` (1:N mapped to Students) |
-| **HOSTEL** | `id` | `room_no`, `capacity`, `bed_type`| `Resides_In` (1:N mapped to Students) |
-| **NOTICE** | `id` | `title`, `message`, `type` | `Published_By` (N:1 with User) |
