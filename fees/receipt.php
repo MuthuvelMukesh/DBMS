@@ -9,15 +9,27 @@ if ($fee_id == 0) {
 }
 
 // Fetch fee details
-$stmt = $conn->prepare("
-    SELECT f.id, f.student_id, f.fee_type, f.amount, f.due_date, f.paid_date, 
-           f.payment_status, f.receipt_no, f.created_at,
-           s.admission_no, s.full_name, s.class_id, s.section
-    FROM fees f
-    JOIN students s ON f.student_id = s.id
-    WHERE f.id = ?
-");
-$stmt->bind_param("i", $fee_id);
+if ($role === 'student') {
+    $stmt = $conn->prepare("
+        SELECT f.id, f.student_id, f.fee_type, f.amount, f.due_date, f.paid_date,
+               f.payment_status, f.receipt_no, f.created_at,
+               s.admission_no, s.full_name, s.class_id, s.section
+        FROM fees f
+        JOIN students s ON f.student_id = s.id
+        WHERE f.id = ? AND s.user_id = ?
+    ");
+    $stmt->bind_param("ii", $fee_id, $_SESSION['user_id']);
+} else {
+    $stmt = $conn->prepare("
+        SELECT f.id, f.student_id, f.fee_type, f.amount, f.due_date, f.paid_date,
+               f.payment_status, f.receipt_no, f.created_at,
+               s.admission_no, s.full_name, s.class_id, s.section
+        FROM fees f
+        JOIN students s ON f.student_id = s.id
+        WHERE f.id = ?
+    ");
+    $stmt->bind_param("i", $fee_id);
+}
 $stmt->execute();
 $result = $stmt->get_result();
 $fee = $result->fetch_assoc();

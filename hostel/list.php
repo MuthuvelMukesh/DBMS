@@ -6,26 +6,50 @@ $limit = 10;
 $offset = ($page - 1) * $limit;
 
 // Fetch all active hostel assignments
-$stmt = $conn->prepare("
-    SELECT ha.id, ha.student_id, ha.room_id, ha.join_date, ha.status,
-           s.admission_no, s.full_name, c.class_name,
-           r.room_no, r.floor, r.room_type, r.capacity
-    FROM hostel_assignments ha
-    JOIN students s ON ha.student_id = s.id
-    JOIN classes c ON s.class_id = c.id
-    JOIN hostel_rooms r ON ha.room_id = r.id
-    WHERE ha.status = 'active'
-    ORDER BY r.floor, r.room_no, s.full_name
-    LIMIT ? OFFSET ?
-");
-$stmt->bind_param("ii", $limit, $offset);
+if ($role === 'student') {
+    $stmt = $conn->prepare("
+        SELECT ha.id, ha.student_id, ha.room_id, ha.join_date, ha.status,
+               s.admission_no, s.full_name, c.class_name,
+               r.room_no, r.floor, r.room_type, r.capacity
+        FROM hostel_assignments ha
+        JOIN students s ON ha.student_id = s.id
+        JOIN classes c ON s.class_id = c.id
+        JOIN hostel_rooms r ON ha.room_id = r.id
+        WHERE ha.status = 'active' AND s.user_id = ?
+        ORDER BY r.floor, r.room_no, s.full_name
+        LIMIT ? OFFSET ?
+    ");
+    $stmt->bind_param("iii", $_SESSION['user_id'], $limit, $offset);
+} else {
+    $stmt = $conn->prepare("
+        SELECT ha.id, ha.student_id, ha.room_id, ha.join_date, ha.status,
+               s.admission_no, s.full_name, c.class_name,
+               r.room_no, r.floor, r.room_type, r.capacity
+        FROM hostel_assignments ha
+        JOIN students s ON ha.student_id = s.id
+        JOIN classes c ON s.class_id = c.id
+        JOIN hostel_rooms r ON ha.room_id = r.id
+        WHERE ha.status = 'active'
+        ORDER BY r.floor, r.room_no, s.full_name
+        LIMIT ? OFFSET ?
+    ");
+    $stmt->bind_param("ii", $limit, $offset);
+}
 $stmt->execute();
 $assignments = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
 
 // Get total count
-$count_result = $conn->query("SELECT COUNT(*) as total FROM hostel_assignments WHERE status = 'active'");
-$count_row = $count_result->fetch_assoc();
+if ($role === 'student') {
+    $stmt_c = $conn->prepare("SELECT COUNT(*) as total FROM hostel_assignments ha JOIN students s ON ha.student_id = s.id WHERE ha.status = 'active' AND s.user_id = ?");
+    $stmt_c->bind_param("i", $_SESSION['user_id']);
+    $stmt_c->execute();
+    $count_row = $stmt_c->get_result()->fetch_assoc();
+    $stmt_c->close();
+} else {
+    $count_result = $conn->query("SELECT COUNT(*) as total FROM hostel_assignments WHERE status = 'active'");
+    $count_row = $count_result->fetch_assoc();
+}
 $total_records = $count_row['total'];
 $total_pages = ceil($total_records / $limit);
 ?>

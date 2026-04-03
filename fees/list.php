@@ -1,18 +1,33 @@
 <?php
 require_once '../header.php';
 
-// Adjust based on RBAC if needed, skipping manual pagination
-$query = "
-    SELECT f.id, f.student_id, f.fee_type, f.amount, f.due_date, f.paid_date, 
-           f.payment_status, f.receipt_no, s.admission_no, s.full_name
-    FROM fees f
-    JOIN students s ON f.student_id = s.id
-    ORDER BY f.created_at DESC
-";
-
-$result = $conn->query($query);
-$fees = $result->fetch_all(MYSQLI_ASSOC);
-
+// Adjust based on RBAC
+if ($role === 'student') {
+    // Only fetch fees for this student
+    $stmt = $conn->prepare("
+        SELECT f.id, f.student_id, f.fee_type, f.amount, f.due_date, f.paid_date,
+               f.payment_status, f.receipt_no, s.admission_no, s.full_name
+        FROM fees f
+        JOIN students s ON f.student_id = s.id
+        WHERE s.user_id = ?
+        ORDER BY f.created_at DESC
+    ");
+    $stmt->bind_param("i", $_SESSION['user_id']);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $fees = $result->fetch_all(MYSQLI_ASSOC);
+    $stmt->close();
+} else {
+    $query = "
+        SELECT f.id, f.student_id, f.fee_type, f.amount, f.due_date, f.paid_date,   
+               f.payment_status, f.receipt_no, s.admission_no, s.full_name
+        FROM fees f
+        JOIN students s ON f.student_id = s.id
+        ORDER BY f.created_at DESC
+    ";
+    $result = $conn->query($query);
+    $fees = $result->fetch_all(MYSQLI_ASSOC);
+}
 ?>
 
 <h1 class="page-title"><i class="fas fa-money-bill-wave"></i> Fee Management</h1>

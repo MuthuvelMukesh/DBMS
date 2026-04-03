@@ -21,15 +21,27 @@ if ($selected_exam > 0) {
 
     if ($exam_info) {
         // Get results
-        $stmt = $conn->prepare("
-            SELECT r.id, r.student_id, r.marks_obtained, r.grade, 
-                   s.admission_no, s.full_name
-            FROM results r
-            JOIN students s ON r.student_id = s.id
-            WHERE r.exam_id = ?
-            ORDER BY r.marks_obtained DESC
-        ");
-        $stmt->bind_param("i", $selected_exam);
+        if ($role === 'student') {
+            $stmt = $conn->prepare("
+                SELECT r.id, r.student_id, r.marks_obtained, r.grade,
+                       s.admission_no, s.full_name
+                FROM results r
+                JOIN students s ON r.student_id = s.id
+                WHERE r.exam_id = ? AND s.user_id = ?
+                ORDER BY r.marks_obtained DESC
+            ");
+            $stmt->bind_param("ii", $selected_exam, $_SESSION['user_id']);
+        } else {
+            $stmt = $conn->prepare("
+                SELECT r.id, r.student_id, r.marks_obtained, r.grade,
+                       s.admission_no, s.full_name
+                FROM results r
+                JOIN students s ON r.student_id = s.id
+                WHERE r.exam_id = ?
+                ORDER BY r.marks_obtained DESC
+            ");
+            $stmt->bind_param("i", $selected_exam);
+        }
         $stmt->execute();
         $results_result = $stmt->get_result();
         $results = $results_result->fetch_all(MYSQLI_ASSOC);
