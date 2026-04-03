@@ -1,5 +1,12 @@
 <?php
+session_start();
 require_once '../dbconfig.php';
+
+if (!isset($_SESSION['user_id'])) {
+    http_response_code(401);
+    echo json_encode(['error' => 'Unauthorized']);
+    exit();
+}
 
 $transport_id = isset($_GET['transport_id']) ? (int)$_GET['transport_id'] : 0;
 

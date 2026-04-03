@@ -1,9 +1,8 @@
 <?php
 require_once '../header.php';
 
-if ($role != 'admin') {
-    echo '<div class="alert alert-danger">You do not have permission to access this page.</div>';
-    require_once '../footer.php';
+if ($role !== 'admin') {
+    header('Location: ' . BASE_URL . 'dashboard.php?error=Access Denied');
     exit();
 }
 

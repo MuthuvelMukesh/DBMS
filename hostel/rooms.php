@@ -1,6 +1,12 @@
 <?php
 require_once '../header.php';
 
+if (!in_array($role, ['admin', 'staff'])) {
+    header('Location: ' . BASE_URL . 'dashboard.php?error=Access Denied');
+    exit();
+}
+
+
 $error = '';
 $success = '';
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
