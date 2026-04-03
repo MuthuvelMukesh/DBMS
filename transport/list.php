@@ -93,9 +93,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 <div class="card border-0 shadow-sm mb-4">
     <div class="card-header bg-light border-bottom d-flex justify-content-between align-items-center">
         <h5 class="mb-0">Active Student Assignments</h5>
+        <?php if ($role !== 'student'): ?>
         <a href="assign.php" class="btn btn-primary btn-sm">
             <i class="fas fa-plus"></i> Assign Student
         </a>
+        <?php endif; ?>
     </div>
     <div class="card-body">
         <?php if (!empty($error)): ?>
@@ -124,7 +126,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                         <th>Join Date</th>
                         <th>Driver</th>
                         <th>Status</th>
+                        <?php if ($role !== 'student'): ?>
                         <th>Action</th>
+                        <?php endif; ?>
                     </tr>
                 </thead>
                 <tbody>
@@ -145,6 +149,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                                         <?php echo ucfirst($assignment['status']); ?>
                                     </span>
                                 </td>
+                                <?php if ($role !== 'student'): ?>
                                 <td>
                                     <form method="POST" style="display: inline;">
                                         <input type="hidden" name="action" value="remove">
@@ -154,11 +159,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                                         </button>
                                     </form>
                                 </td>
+                                <?php endif; ?>
                             </tr>
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="9" class="text-center text-muted py-4">No active assignments found</td>
+                            <td colspan="<?php echo ($role === 'student' ? '8' : '9'); ?>" class="text-center text-muted py-4">No active assignments found</td>
                         </tr>
                     <?php endif; ?>
                 </tbody>

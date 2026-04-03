@@ -59,9 +59,11 @@ $total_pages = ceil($total_records / $limit);
 <div class="card border-0 shadow-sm mb-4">
     <div class="card-header bg-light border-bottom d-flex justify-content-between align-items-center">
         <h5 class="mb-0">Active Student Assignments</h5>
+        <?php if ($role !== 'student'): ?>
         <a href="assign.php" class="btn btn-primary btn-sm">
             <i class="fas fa-plus"></i> Assign Student
         </a>
+        <?php endif; ?>
     </div>
     <div class="card-body">
         <div class="table-responsive">
@@ -75,7 +77,9 @@ $total_pages = ceil($total_records / $limit);
                         <th>Class</th>
                         <th>Join Date</th>
                         <th>Status</th>
+                        <?php if ($role !== 'student'): ?>
                         <th>Action</th>
+                        <?php endif; ?>
                     </tr>
                 </thead>
                 <tbody>
@@ -95,16 +99,18 @@ $total_pages = ceil($total_records / $limit);
                                         <?php echo ucfirst($assignment['status']); ?>
                                     </span>
                                 </td>
+                                <?php if ($role !== 'student'): ?>
                                 <td>
                                     <a href="vacate.php?assignment_id=<?php echo $assignment['id']; ?>" class="btn btn-warning btn-sm">
                                         <i class="fas fa-sign-out-alt"></i> Vacate
                                     </a>
                                 </td>
+                                <?php endif; ?>
                             </tr>
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="8" class="text-center text-muted py-4">No active assignments found</td>
+                            <td colspan="<?php echo ($role === 'student' ? '7' : '8'); ?>" class="text-center text-muted py-4">No active assignments found</td>
                         </tr>
                     <?php endif; ?>
                 </tbody>

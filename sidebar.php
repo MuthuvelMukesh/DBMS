@@ -63,8 +63,10 @@ $role = $_SESSION['role'];
                     </ul>
                 </div>
             </li>
+            <?php endif; ?>
 
             <!-- Classes Management -->
+            <?php if (in_array($role, ['admin', 'teacher'])): ?>
             <li class="nav-item">
                 <a class="nav-link" href="<?php echo BASE_URL; ?>classes/list.php">
                     <i class="fas fa-chalkboard"></i>
@@ -74,7 +76,7 @@ $role = $_SESSION['role'];
             <?php endif; ?>
 
             <!-- Attendance Management -->
-            <?php if (in_array($role, ['admin', 'teacher', 'parent'])): ?>
+            <?php if (in_array($role, ['admin', 'teacher', 'parent', 'student'])): ?>
             <li class="nav-item">
                 <a class="nav-link" data-bs-toggle="collapse" href="#attendanceMenu" role="button">
                     <i class="fas fa-clipboard-list"></i>
@@ -100,7 +102,7 @@ $role = $_SESSION['role'];
             <?php endif; ?>
 
             <!-- Fees Management -->
-            <?php if (in_array($role, ['admin', 'parent'])): ?>
+            <?php if (in_array($role, ['admin', 'parent', 'student'])): ?>
             <li class="nav-item">
                 <a class="nav-link" data-bs-toggle="collapse" href="#feesMenu" role="button">
                     <i class="fas fa-money-bill-wave"></i>
@@ -126,7 +128,7 @@ $role = $_SESSION['role'];
             <?php endif; ?>
 
             <!-- Exams Management -->
-            <?php if (in_array($role, ['admin', 'teacher'])): ?>
+            <?php if (in_array($role, ['admin', 'teacher', 'student'])): ?>
             <li class="nav-item">
                 <a class="nav-link" data-bs-toggle="collapse" href="#examsMenu" role="button">
                     <i class="fas fa-pen-square"></i>
@@ -149,7 +151,7 @@ $role = $_SESSION['role'];
             <?php endif; ?>
 
             <!-- Results Management -->
-            <?php if (in_array($role, ['admin', 'teacher', 'parent'])): ?>
+            <?php if (in_array($role, ['admin', 'teacher', 'parent', 'student'])): ?>
             <li class="nav-item">
                 <a class="nav-link" data-bs-toggle="collapse" href="#resultsMenu" role="button">
                     <i class="fas fa-chart-bar"></i>
@@ -175,7 +177,7 @@ $role = $_SESSION['role'];
             <?php endif; ?>
 
             <!-- Transport Management -->
-            <?php if (in_array($role, ['admin', 'staff'])): ?>
+            <?php if (in_array($role, ['admin', 'staff', 'student'])): ?>
             <li class="nav-item">
                 <a class="nav-link" data-bs-toggle="collapse" href="#transportMenu" role="button">
                     <i class="fas fa-bus"></i>
@@ -184,12 +186,14 @@ $role = $_SESSION['role'];
                 </a>
                 <div class="collapse" id="transportMenu">
                     <ul class="navbar-nav flex-column">
+                        <?php if (in_array($role, ['admin', 'staff'])): ?>
                         <li class="nav-item">
                             <a class="nav-link" href="<?php echo BASE_URL; ?>transport/routes.php">Routes</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="<?php echo BASE_URL; ?>transport/assign.php">Assign</a>
                         </li>
+                        <?php endif; ?>
                         <li class="nav-item">
                             <a class="nav-link" href="<?php echo BASE_URL; ?>transport/list.php">Student Assignments</a>
                         </li>
@@ -199,7 +203,7 @@ $role = $_SESSION['role'];
             <?php endif; ?>
 
             <!-- Hostel Management -->
-            <?php if (in_array($role, ['admin', 'staff'])): ?>
+            <?php if (in_array($role, ['admin', 'staff', 'student'])): ?>
             <li class="nav-item">
                 <a class="nav-link" data-bs-toggle="collapse" href="#hostelMenu" role="button">
                     <i class="fas fa-home"></i>
@@ -208,18 +212,22 @@ $role = $_SESSION['role'];
                 </a>
                 <div class="collapse" id="hostelMenu">
                     <ul class="navbar-nav flex-column">
+                        <?php if (in_array($role, ['admin', 'staff'])): ?>
                         <li class="nav-item">
                             <a class="nav-link" href="<?php echo BASE_URL; ?>hostel/rooms.php">Rooms</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="<?php echo BASE_URL; ?>hostel/assign.php">Assign Room</a>
                         </li>
+                        <?php endif; ?>
                         <li class="nav-item">
                             <a class="nav-link" href="<?php echo BASE_URL; ?>hostel/list.php">Assignments</a>
                         </li>
+                        <?php if (in_array($role, ['admin', 'staff'])): ?>
                         <li class="nav-item">
                             <a class="nav-link" href="<?php echo BASE_URL; ?>hostel/vacate.php">Vacate</a>
                         </li>
+                        <?php endif; ?>
                     </ul>
                 </div>
             </li>

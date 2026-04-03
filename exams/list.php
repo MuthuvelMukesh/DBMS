@@ -7,6 +7,18 @@ $status_filter = isset($_GET['status']) ? $_GET['status'] : '';
 $limit = 10;
 $offset = ($page - 1) * $limit;
 
+// If student, force class filter to their own class
+if ($role === 'student') {
+    $stmt_stu = $conn->prepare("SELECT class_id FROM students WHERE user_id = ?");
+    $stmt_stu->bind_param("i", $_SESSION['user_id']);
+    $stmt_stu->execute();
+    $res_stu = $stmt_stu->get_result();
+    if ($stu_row = $res_stu->fetch_assoc()) {
+        $class_filter = $stu_row['class_id'];
+    }
+    $stmt_stu->close();
+}
+
 // Get classes
 $classes_result = $conn->query("SELECT id, CONCAT(class_name, ' - ', section) as class_name FROM classes WHERE status = 'active' ORDER BY class_name");
 $classes = $classes_result->fetch_all(MYSQLI_ASSOC);
@@ -45,17 +57,22 @@ $stmt->close();
 
 // Get total count
 $count_query = "SELECT COUNT(*) as total FROM exams WHERE 1=1";
+$c_params = [];
+$c_types = "";
 if (!empty($class_filter)) {
     $count_query .= " AND class_id = ?";
-} elseif (!empty($status_filter)) {
+    $c_params[] = $class_filter;
+    $c_types .= "i";
+}
+if (!empty($status_filter)) {
     $count_query .= " AND status = ?";
+    $c_params[] = $status_filter;
+    $c_types .= "s";
 }
 
 $stmt = $conn->prepare($count_query);
-if (!empty($class_filter)) {
-    $stmt->bind_param("i", $class_filter);
-} elseif (!empty($status_filter)) {
-    $stmt->bind_param("s", $status_filter);
+if (!empty($c_params)) {
+    $stmt->bind_param($c_types, ...$c_params);
 }
 $stmt->execute();
 $count_result = $stmt->get_result();
@@ -70,12 +87,15 @@ $stmt->close();
 <div class="card border-0 shadow-sm mb-4">
     <div class="card-header bg-light border-bottom d-flex justify-content-between align-items-center">
         <h5 class="mb-0">All Exams</h5>
+        <?php if (in_array($role, ['admin', 'teacher'])): ?>
         <a href="add.php" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Add Exam</a>
+        <?php endif; ?>
     </div>
     <div class="card-body">
         <div class="row mb-3">
             <div class="col-md-6">
                 <form method="GET" action="">
+                    <?php if ($role !== 'student'): ?>
                     <select name="class" class="form-select" onchange="this.form.submit();">
                         <option value="">All Classes</option>
                         <?php foreach ($classes as $class): ?>
@@ -84,6 +104,9 @@ $stmt->close();
                             </option>
                         <?php endforeach; ?>
                     </select>
+                    <?php else: ?>
+                    <input type="hidden" name="class" value="<?php echo $class_filter; ?>">
+                    <?php endif; ?>
                 </form>
             </div>
             <div class="col-md-6">

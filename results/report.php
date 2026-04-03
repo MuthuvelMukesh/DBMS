@@ -183,7 +183,9 @@ if ($selected_exam > 0) {
         </div>
 
         <div class="d-flex gap-2">
+            <?php if ($role !== 'student'): ?>
             <a href="add.php?exam=<?php echo $selected_exam; ?>" class="btn btn-primary"><i class="fas fa-edit"></i> Edit Results</a>
+            <?php endif; ?>
             <a href="marksheet.php?exam=<?php echo $selected_exam; ?>" target="_blank" class="btn btn-success"><i class="fas fa-file-pdf"></i> View Marksheet</a>
         </div>
 
