@@ -7,40 +7,54 @@ require_once 'dbconfig.php';
 $error = '';
 $success = '';
 
+if (empty($_SESSION['csrf_token'])) {
+    try {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    } catch (Throwable $e) {
+        $_SESSION['csrf_token'] = hash('sha256', session_id() . microtime(true));
+    }
+}
+
 if (isset($_SESSION['user_id'])) {
     header("Location: " . BASE_URL . "dashboard.php");
     exit();
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = isset($_POST['username']) ? trim($_POST['username']) : '';
-    $password = isset($_POST['password']) ? $_POST['password'] : '';
-
-    if (empty($username) || empty($password)) {
-        $error = 'Please enter both username and password.';
+    $submitted_token = $_POST['_csrf_token'] ?? '';
+    if (!is_string($submitted_token) || $submitted_token === '' || !hash_equals($_SESSION['csrf_token'], $submitted_token)) {
+        $error = 'Invalid request token. Please refresh and try again.';
     } else {
-        $stmt = $conn->prepare("SELECT id, username, password, role, status FROM users WHERE username = ?");
-        $stmt->bind_param("s", $username);
-        $stmt->execute();
-        $result = $stmt->get_result();
+        $username = isset($_POST['username']) ? trim($_POST['username']) : '';
+        $password = isset($_POST['password']) ? $_POST['password'] : '';
 
-        if ($result->num_rows == 1) {
-            $user = $result->fetch_assoc();
-
-            if ($user['status'] === 'active' && password_verify($password, $user['password'])) {
-                $_SESSION['user_id'] = $user['id'];
-                $_SESSION['username'] = $user['username'];
-                $_SESSION['role'] = $user['role'];
-
-                header("Location: " . BASE_URL . "dashboard.php");
-                exit();
-            } else {
-                $error = 'Invalid username or password, or your account is inactive.';
-            }
+        if (empty($username) || empty($password)) {
+            $error = 'Please enter both username and password.';
         } else {
-            $error = 'Invalid username or password.';
+            $stmt = $conn->prepare("SELECT id, username, password, role, status FROM users WHERE username = ?");
+            $stmt->bind_param("s", $username);
+            $stmt->execute();
+            $result = $stmt->get_result();
+
+            if ($result->num_rows == 1) {
+                $user = $result->fetch_assoc();
+
+                if ($user['status'] === 'active' && password_verify($password, $user['password'])) {
+                    session_regenerate_id(true);
+                    $_SESSION['user_id'] = $user['id'];
+                    $_SESSION['username'] = $user['username'];
+                    $_SESSION['role'] = $user['role'];
+
+                    header("Location: " . BASE_URL . "dashboard.php");
+                    exit();
+                } else {
+                    $error = 'Invalid username or password, or your account is inactive.';
+                }
+            } else {
+                $error = 'Invalid username or password.';
+            }
+            $stmt->close();
         }
-        $stmt->close();
     }
 }
 ?>
@@ -175,6 +189,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
 
         <form method="POST" action="">
+            <input type="hidden" name="_csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8'); ?>">
             <div class="mb-3">
                 <label for="username" class="form-label">Username</label>
                 <div class="input-group">
@@ -197,7 +212,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </form>
 
         <div class="mt-3 text-center text-muted small">
-            <p class="mb-1">Demo Login: Username <strong>admin</strong> | Password <strong>admin123</strong></p>
+            <p class="mb-1">Use credentials provided by your administrator.</p>
             <p class="mb-0">No public role registration is enabled. Accounts and roles are created by the admin for security and access control.</p>
         </div>
 

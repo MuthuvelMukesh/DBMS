@@ -2,10 +2,9 @@
 require_once '../header.php';
 
 // Adjust based on RBAC
-if (in_array($role, ['student', 'parent'], true)) {
-    // Only fetch fees for this student
+if ($role === 'student') {
     $stmt = $conn->prepare("
-        SELECT f.id, f.student_id, f.fee_type, f.amount, f.due_date, f.paid_date,
+        SELECT f.id, f.student_id, f.fee_type, f.amount, f.paid_amount, f.due_date, f.paid_date,
                f.payment_status, f.receipt_no, s.admission_no, s.full_name
         FROM fees f
         JOIN students s ON f.student_id = s.id
@@ -17,9 +16,29 @@ if (in_array($role, ['student', 'parent'], true)) {
     $result = $stmt->get_result();
     $fees = $result->fetch_all(MYSQLI_ASSOC);
     $stmt->close();
+} elseif ($role === 'parent') {
+    if (!ensure_parent_student_links_table($conn)) {
+        $fees = [];
+    } else {
+        $stmt = $conn->prepare("
+            SELECT f.id, f.student_id, f.fee_type, f.amount, f.paid_amount, f.due_date, f.paid_date,
+                   f.payment_status, f.receipt_no, s.admission_no, s.full_name
+            FROM fees f
+            JOIN students s ON f.student_id = s.id
+            JOIN parent_student_links psl ON psl.student_id = s.id
+            WHERE psl.parent_user_id = ?
+              AND psl.status = 'active'
+            ORDER BY f.created_at DESC
+        ");
+        $stmt->bind_param("i", $_SESSION['user_id']);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $fees = $result->fetch_all(MYSQLI_ASSOC);
+        $stmt->close();
+    }
 } else {
     $query = "
-        SELECT f.id, f.student_id, f.fee_type, f.amount, f.due_date, f.paid_date,   
+        SELECT f.id, f.student_id, f.fee_type, f.amount, f.paid_amount, f.due_date, f.paid_date,
                f.payment_status, f.receipt_no, s.admission_no, s.full_name
         FROM fees f
         JOIN students s ON f.student_id = s.id
@@ -49,6 +68,7 @@ if (in_array($role, ['student', 'parent'], true)) {
                         <th>Student Name</th>
                         <th>Fee Type</th>
                         <th>Amount</th>
+                        <th>Paid / Due</th>
                         <th>Due Date</th>
                         <th>Status</th>
                         <th class="text-end">Actions</th>
@@ -63,6 +83,15 @@ if (in_array($role, ['student', 'parent'], true)) {
                                 <td><?php echo htmlspecialchars($fee['full_name']); ?></td>
                                 <td><?php echo htmlspecialchars($fee['fee_type']); ?></td>
                                 <td><strong>₹<?php echo number_format($fee['amount'], 2); ?></strong></td>
+                                <td>
+                                    <?php
+                                        $paid_amount = (float) ($fee['paid_amount'] ?? 0);
+                                        $remaining_amount = max(0, (float) $fee['amount'] - $paid_amount);
+                                    ?>
+                                    <span class="text-success">₹<?php echo number_format($paid_amount, 2); ?></span>
+                                    /
+                                    <span class="text-danger">₹<?php echo number_format($remaining_amount, 2); ?></span>
+                                </td>
                                 <td><?php echo date('d-m-Y', strtotime($fee['due_date'])); ?></td>
                                 <td>
                                     <?php if ($fee['payment_status'] == 'Paid'): ?>
@@ -84,7 +113,7 @@ if (in_array($role, ['student', 'parent'], true)) {
                             </tr>
                         <?php endforeach; ?>
                     <?php else: ?>
-                        <tr><td colspan="8" class="text-center py-4">No records found</td></tr>
+                        <tr><td colspan="9" class="text-center py-4">No records found</td></tr>
                     <?php endif; ?>
                 </tbody>
             </table>

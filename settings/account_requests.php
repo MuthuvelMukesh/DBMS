@@ -87,7 +87,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && empty($error)) {
                 $stmt->close();
 
                 $conn->commit();
-                $success = 'Request approved. User account created and role assigned.';
+                if ($assigned_role === 'parent') {
+                    $success = 'Request approved. Parent account created. Link the parent to students from Parent Links.';
+                } else {
+                    $success = 'Request approved. User account created and role assigned.';
+                }
             } catch (Throwable $e) {
                 $conn->rollback();
                 $error = $e->getMessage();

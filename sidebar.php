@@ -176,7 +176,7 @@ $role = $_SESSION['role'];
             <?php endif; ?>
 
             <!-- Transport Management -->
-            <?php if (in_array($role, ['admin', 'staff', 'student'])): ?>
+            <?php if (in_array($role, ['admin', 'staff', 'parent', 'student'])): ?>
             <li class="nav-item">
                 <a class="nav-link" data-bs-toggle="collapse" href="#transportMenu" role="button">
                     <i class="fas fa-bus"></i>
@@ -202,7 +202,7 @@ $role = $_SESSION['role'];
             <?php endif; ?>
 
             <!-- Hostel Management -->
-            <?php if (in_array($role, ['admin', 'staff', 'student'])): ?>
+            <?php if (in_array($role, ['admin', 'staff', 'parent', 'student'])): ?>
             <li class="nav-item">
                 <a class="nav-link" data-bs-toggle="collapse" href="#hostelMenu" role="button">
                     <i class="fas fa-home"></i>
@@ -254,6 +254,12 @@ $role = $_SESSION['role'];
                 <a class="nav-link" href="<?php echo BASE_URL; ?>settings/account_requests.php">
                     <i class="fas fa-user-check"></i>
                     <span class="sidebar-text">Account Requests</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="<?php echo BASE_URL; ?>settings/parent_links.php">
+                    <i class="fas fa-link"></i>
+                    <span class="sidebar-text">Parent Links</span>
                 </a>
             </li>
             <?php endif; ?>

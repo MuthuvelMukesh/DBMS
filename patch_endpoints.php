@@ -1,4 +1,9 @@
 <?php
+if (PHP_SAPI !== 'cli') {
+    http_response_code(403);
+    exit('Forbidden');
+}
+
 $patches = [
     'hostel/assign.php' => "['admin', 'staff']",
     'hostel/rooms.php'  => "['admin', 'staff']",

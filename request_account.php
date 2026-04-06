@@ -17,6 +17,14 @@ $email = '';
 $phone = '';
 $request_note = '';
 
+if (empty($_SESSION['csrf_token'])) {
+    try {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    } catch (Throwable $e) {
+        $_SESSION['csrf_token'] = hash('sha256', session_id() . microtime(true));
+    }
+}
+
 $create_table_sql = "CREATE TABLE IF NOT EXISTS account_requests (
     id INT PRIMARY KEY AUTO_INCREMENT,
     full_name VARCHAR(100) NOT NULL,
@@ -41,6 +49,11 @@ if (!$conn->query($create_table_sql)) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && empty($error)) {
+    $submitted_token = $_POST['_csrf_token'] ?? '';
+    if (!is_string($submitted_token) || $submitted_token === '' || !hash_equals($_SESSION['csrf_token'], $submitted_token)) {
+        $error = 'Invalid request token. Please refresh and try again.';
+    }
+
     $full_name = trim($_POST['full_name'] ?? '');
     $username = trim($_POST['username'] ?? '');
     $email = trim($_POST['email'] ?? '');
@@ -49,19 +62,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && empty($error)) {
     $confirm_password = $_POST['confirm_password'] ?? '';
     $request_note = trim($_POST['request_note'] ?? '');
 
-    if (strlen($full_name) < 3) {
+    if (empty($error) && strlen($full_name) < 3) {
         $error = 'Please enter your full name.';
-    } elseif (!preg_match('/^[A-Za-z0-9_.-]{3,30}$/', $username)) {
+    } elseif (empty($error) && !preg_match('/^[A-Za-z0-9_.-]{3,30}$/', $username)) {
         $error = 'Username must be 3-30 chars and can contain letters, numbers, dot, underscore, and hyphen.';
-    } elseif (strlen($password) < 6) {
+    } elseif (empty($error) && strlen($password) < 6) {
         $error = 'Password must be at least 6 characters.';
-    } elseif ($password !== $confirm_password) {
+    } elseif (empty($error) && $password !== $confirm_password) {
         $error = 'Password and confirm password do not match.';
-    } elseif (!empty($email) && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    } elseif (empty($error) && !empty($email) && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error = 'Enter a valid email address.';
-    } elseif (!empty($phone) && !preg_match('/^[0-9+\-\s()]{7,20}$/', $phone)) {
+    } elseif (empty($error) && !empty($phone) && !preg_match('/^[0-9+\-\s()]{7,20}$/', $phone)) {
         $error = 'Enter a valid phone number.';
-    } elseif (strlen($request_note) > 255) {
+    } elseif (empty($error) && strlen($request_note) > 255) {
         $error = 'Note must be 255 characters or fewer.';
     } else {
         $stmt = $conn->prepare('SELECT id FROM users WHERE username = ? LIMIT 1');
@@ -191,6 +204,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && empty($error)) {
         <?php endif; ?>
 
         <form method="POST" action="">
+            <input type="hidden" name="_csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8'); ?>">
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label class="form-label" for="full_name">Full Name</label>

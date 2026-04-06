@@ -1,4 +1,4 @@
-# School Management System (SchoolMS)
+# Integrated School Operations Management System
 
 A robust, feature-rich PHP & MySQL School Management System.
 

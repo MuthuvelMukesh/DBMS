@@ -60,13 +60,28 @@ CREATE TABLE IF NOT EXISTS students (
     contact VARCHAR(20) NOT NULL,
     address TEXT,
     photo VARCHAR(255),
-    status ENUM('active', 'inactive', 'passed_out') NOT NULL DEFAULT 'active',
+    status ENUM('active', 'inactive', 'passed_out', 'deleted') NOT NULL DEFAULT 'active',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
     FOREIGN KEY (class_id) REFERENCES classes(id) ON DELETE RESTRICT,
     INDEX idx_admission (admission_no),
     INDEX idx_class (class_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Parent-Student Mapping table
+CREATE TABLE IF NOT EXISTS parent_student_links (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    parent_user_id INT NOT NULL,
+    student_id INT NOT NULL,
+    relationship VARCHAR(50) DEFAULT NULL,
+    status ENUM('active', 'inactive') NOT NULL DEFAULT 'active',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uniq_parent_student (parent_user_id, student_id),
+    INDEX idx_parent_user (parent_user_id),
+    INDEX idx_parent_student (student_id),
+    FOREIGN KEY (parent_user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Staff table
@@ -81,7 +96,7 @@ CREATE TABLE IF NOT EXISTS staff (
     email VARCHAR(100),
     salary DECIMAL(10, 2),
     join_date DATE NOT NULL,
-    status ENUM('active', 'inactive', 'retired') NOT NULL DEFAULT 'active',
+    status ENUM('active', 'inactive', 'retired', 'deleted') NOT NULL DEFAULT 'active',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
@@ -111,6 +126,7 @@ CREATE TABLE IF NOT EXISTS fees (
     student_id INT NOT NULL,
     fee_type VARCHAR(50) NOT NULL,
     amount DECIMAL(10, 2) NOT NULL,
+    paid_amount DECIMAL(10, 2) NOT NULL DEFAULT 0,
     due_date DATE NOT NULL,
     paid_date DATE,
     payment_status ENUM('Pending', 'Paid', 'Partial') NOT NULL DEFAULT 'Pending',

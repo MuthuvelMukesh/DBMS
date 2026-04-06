@@ -71,9 +71,12 @@ $curr_logo = $sys_settings['logo_path'] ?? '';
 <div class="container-fluid py-4">
     <h1 class="page-title"><i class="fas fa-cogs text-primary"></i> System Settings</h1>
 
-    <div class="mb-3">
+    <div class="mb-3 d-flex gap-2 flex-wrap">
         <a href="account_requests.php" class="btn btn-outline-primary">
             <i class="fas fa-user-check"></i> Manage Account Requests
+        </a>
+        <a href="parent_links.php" class="btn btn-outline-primary">
+            <i class="fas fa-link"></i> Manage Parent Links
         </a>
     </div>
 

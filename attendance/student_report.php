@@ -6,9 +6,9 @@ $student_info = null;
 $attendance_records = [];
 $summary = ['present' => 0, 'absent' => 0, 'late' => 0, 'total' => 0];
 $profile_error = '';
+$students_list = [];
 
-// Restrict parent/student style accounts to their own linked student profile.
-if (in_array($role, ['student', 'parent'], true)) {
+if ($role === 'student') {
     $stmt = $conn->prepare("SELECT id FROM students WHERE user_id = ? AND status = 'active'");
     $stmt->bind_param("i", $_SESSION['user_id']);
     $stmt->execute();
@@ -20,7 +20,28 @@ if (in_array($role, ['student', 'parent'], true)) {
         $profile_error = 'No linked student profile was found for your account. Please contact the administrator.';
         $selected_student = 0;
     } else {
-        $selected_student = $stu['id'];
+        $selected_student = (int) $stu['id'];
+    }
+} elseif ($role === 'parent') {
+    $parent_students = get_parent_students($conn, (int) $_SESSION['user_id']);
+    $linked_student_ids = [];
+
+    foreach ($parent_students as $student) {
+        $students_list[] = [
+            'id' => (int) $student['id'],
+            'display_name' => $student['full_name'] . ' (' . $student['admission_no'] . ')'
+        ];
+        $linked_student_ids[] = (int) $student['id'];
+    }
+
+    $requested_student = isset($_GET['student']) ? (int) $_GET['student'] : 0;
+    if (empty($linked_student_ids)) {
+        $profile_error = 'No linked student profile was found for your account. Please contact the administrator.';
+        $selected_student = 0;
+    } elseif ($requested_student > 0 && in_array($requested_student, $linked_student_ids, true)) {
+        $selected_student = $requested_student;
+    } else {
+        $selected_student = $linked_student_ids[0];
     }
 } else {
     $selected_student = isset($_GET['student']) ? (int)$_GET['student'] : 0;
@@ -91,7 +112,7 @@ if ($selected_student > 0) {
     </div>
     <div class="card-body">
         <form method="GET" action="" class="row mb-3">
-            <?php if ($role === 'admin' || $role === 'teacher'): ?>
+            <?php if (in_array($role, ['admin', 'teacher', 'parent'], true)): ?>
             <div class="col-md-8">
                 <label for="student" class="form-label">Select Student</label>
                 <select class="form-select" id="student" name="student" onchange="this.form.submit();">

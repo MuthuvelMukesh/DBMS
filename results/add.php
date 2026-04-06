@@ -51,47 +51,68 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $exam = $exam_result->fetch_assoc();
         $stmt->close();
 
-        // Process each student result
-        $students_to_insert = $conn->query("SELECT id FROM students WHERE class_id = (SELECT class_id FROM exams WHERE id = $exam_id) AND status = 'active'");
-        
-        while ($student = $students_to_insert->fetch_assoc()) {
-            $student_id = $student['id'];
-            $marks = isset($_POST['marks_' . $student_id]) ? (int)$_POST['marks_' . $student_id] : 0;
-            
-            if ($marks < 0 || $marks > $exam['max_marks']) {
-                continue;
-            }
-
-            // Calculate grade
-            $percentage = ($marks / $exam['max_marks']) * 100;
-            if ($percentage >= 90) $grade = 'A';
-            elseif ($percentage >= 80) $grade = 'B';
-            elseif ($percentage >= 70) $grade = 'C';
-            elseif ($percentage >= 60) $grade = 'D';
-            elseif ($percentage >= $exam['pass_marks']) $grade = 'E';
-            else $grade = 'F';
-
-            // Delete existing result if any
-            $stmt = $conn->prepare("DELETE FROM results WHERE student_id = ? AND exam_id = ?");
-            $stmt->bind_param("ii", $student_id, $exam_id);
-            $stmt->execute();
-            $stmt->close();
-
-            // Insert new result
-            $stmt = $conn->prepare("INSERT INTO results (student_id, exam_id, marks_obtained, grade) VALUES (?, ?, ?, ?)");
-            $stmt->bind_param("iiis", $student_id, $exam_id, $marks, $grade);
-            $stmt->execute();
-            $stmt->close();
+        if (!$exam || (int) $exam['max_marks'] <= 0) {
+            $error = 'Invalid exam configuration. Please verify max marks.';
         }
 
-        // Update exam status to completed
-        $stmt = $conn->prepare("UPDATE exams SET status = 'completed' WHERE id = ?");
-        $stmt->bind_param("i", $exam_id);
-        $stmt->execute();
-        $stmt->close();
+        // Process each student result
+        if (empty($error)) {
+            $students_stmt = $conn->prepare(
+                "SELECT s.id
+                 FROM students s
+                 JOIN exams e ON s.class_id = e.class_id
+                 WHERE e.id = ? AND s.status = 'active'"
+            );
+            $students_stmt->bind_param("i", $exam_id);
+            $students_stmt->execute();
+            $students_to_insert = $students_stmt->get_result();
 
-        $success = 'Results uploaded successfully!';
-        $_POST = [];
+            $max_marks = (int) $exam['max_marks'];
+            $pass_marks = (int) $exam['pass_marks'];
+
+            while ($student = $students_to_insert->fetch_assoc()) {
+                $student_id = (int) $student['id'];
+                $marks = isset($_POST['marks_' . $student_id]) ? (int)$_POST['marks_' . $student_id] : 0;
+
+                if ($marks < 0 || $marks > $max_marks) {
+                    continue;
+                }
+
+                $percentage = ($marks / $max_marks) * 100;
+                if ($percentage >= 90) {
+                    $grade = 'A';
+                } elseif ($percentage >= 80) {
+                    $grade = 'B';
+                } elseif ($percentage >= 70) {
+                    $grade = 'C';
+                } elseif ($percentage >= 60) {
+                    $grade = 'D';
+                } elseif ($marks >= $pass_marks) {
+                    $grade = 'E';
+                } else {
+                    $grade = 'F';
+                }
+
+                $stmt = $conn->prepare("DELETE FROM results WHERE student_id = ? AND exam_id = ?");
+                $stmt->bind_param("ii", $student_id, $exam_id);
+                $stmt->execute();
+                $stmt->close();
+
+                $stmt = $conn->prepare("INSERT INTO results (student_id, exam_id, marks_obtained, grade) VALUES (?, ?, ?, ?)");
+                $stmt->bind_param("iiis", $student_id, $exam_id, $marks, $grade);
+                $stmt->execute();
+                $stmt->close();
+            }
+            $students_stmt->close();
+
+            $stmt = $conn->prepare("UPDATE exams SET status = 'completed' WHERE id = ?");
+            $stmt->bind_param("i", $exam_id);
+            $stmt->execute();
+            $stmt->close();
+
+            $success = 'Results uploaded successfully!';
+            $_POST = [];
+        }
     }
 }
 ?>

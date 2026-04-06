@@ -9,9 +9,9 @@ if ($fee_id == 0) {
 }
 
 // Fetch fee details
-if (in_array($role, ['student', 'parent'], true)) {
+if ($role === 'student') {
     $stmt = $conn->prepare("
-        SELECT f.id, f.student_id, f.fee_type, f.amount, f.due_date, f.paid_date,
+        SELECT f.id, f.student_id, f.fee_type, f.amount, f.paid_amount, f.due_date, f.paid_date,
                f.payment_status, f.receipt_no, f.created_at,
                s.admission_no, s.full_name, s.class_id, s.section
         FROM fees f
@@ -19,9 +19,26 @@ if (in_array($role, ['student', 'parent'], true)) {
         WHERE f.id = ? AND s.user_id = ?
     ");
     $stmt->bind_param("ii", $fee_id, $_SESSION['user_id']);
+} elseif ($role === 'parent') {
+    if (!ensure_parent_student_links_table($conn)) {
+        header("Location: list.php");
+        exit();
+    }
+    $stmt = $conn->prepare("
+        SELECT f.id, f.student_id, f.fee_type, f.amount, f.paid_amount, f.due_date, f.paid_date,
+               f.payment_status, f.receipt_no, f.created_at,
+               s.admission_no, s.full_name, s.class_id, s.section
+        FROM fees f
+        JOIN students s ON f.student_id = s.id
+        JOIN parent_student_links psl ON psl.student_id = s.id
+        WHERE f.id = ?
+          AND psl.parent_user_id = ?
+          AND psl.status = 'active'
+    ");
+    $stmt->bind_param("ii", $fee_id, $_SESSION['user_id']);
 } else {
     $stmt = $conn->prepare("
-        SELECT f.id, f.student_id, f.fee_type, f.amount, f.due_date, f.paid_date,
+        SELECT f.id, f.student_id, f.fee_type, f.amount, f.paid_amount, f.due_date, f.paid_date,
                f.payment_status, f.receipt_no, f.created_at,
                s.admission_no, s.full_name, s.class_id, s.section
         FROM fees f
@@ -39,6 +56,9 @@ if (!$fee) {
     header("Location: list.php");
     exit();
 }
+
+$paid_amount = (float) ($fee['paid_amount'] ?? 0);
+$remaining_amount = max(0, (float) $fee['amount'] - $paid_amount);
 ?>
 
 <!DOCTYPE html>
@@ -181,6 +201,14 @@ if (!$fee) {
                 <div class="receipt-row" style="border: none;">
                     <span class="label">Amount</span>
                     <span class="value">₹<?php echo number_format($fee['amount'], 2); ?></span>
+                </div>
+                <div class="receipt-row" style="border: none;">
+                    <span class="label">Paid Amount</span>
+                    <span class="value">₹<?php echo number_format($paid_amount, 2); ?></span>
+                </div>
+                <div class="receipt-row" style="border: none;">
+                    <span class="label">Remaining Due</span>
+                    <span class="value">₹<?php echo number_format($remaining_amount, 2); ?></span>
                 </div>
                 <div class="receipt-row" style="border: none;">
                     <span class="label">Due Date</span>

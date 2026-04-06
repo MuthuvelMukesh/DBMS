@@ -25,6 +25,34 @@
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            const csrfToken = <?php echo json_encode($_SESSION['csrf_token'] ?? ''); ?>;
+            const ensureCsrfToken = function(form) {
+                if (!csrfToken) {
+                    return;
+                }
+
+                const method = (form.getAttribute('method') || '').toLowerCase();
+                if (method !== 'post') {
+                    return;
+                }
+
+                if (!form.querySelector('input[name="_csrf_token"]')) {
+                    const hidden = document.createElement('input');
+                    hidden.type = 'hidden';
+                    hidden.name = '_csrf_token';
+                    hidden.value = csrfToken;
+                    form.appendChild(hidden);
+                }
+            };
+
+            document.querySelectorAll('form').forEach(ensureCsrfToken);
+            document.addEventListener('submit', function(event) {
+                const form = event.target;
+                if (form && form.tagName === 'FORM') {
+                    ensureCsrfToken(form);
+                }
+            }, true);
+
             // Auto-hide alerts after 5 seconds
             const alerts = document.querySelectorAll('.alert');
             alerts.forEach(function(alert) {

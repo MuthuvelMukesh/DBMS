@@ -17,7 +17,7 @@ if ($fee_id == 0) {
 
 // Fetch fee details
 $stmt = $conn->prepare("
-    SELECT f.id, f.student_id, f.fee_type, f.amount, f.due_date, f.payment_status, 
+    SELECT f.id, f.student_id, f.fee_type, f.amount, f.paid_amount, f.due_date, f.payment_status,
            s.admission_no, s.full_name
     FROM fees f
     JOIN students s ON f.student_id = s.id
@@ -34,29 +34,44 @@ if (!$fee) {
     exit();
 }
 
+$fee['paid_amount'] = (float) ($fee['paid_amount'] ?? 0);
+$remaining_amount = max(0, (float) $fee['amount'] - $fee['paid_amount']);
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $payment_amount = isset($_POST['payment_amount']) ? (float)$_POST['payment_amount'] : 0;
     $payment_date = isset($_POST['payment_date']) ? $_POST['payment_date'] : date('Y-m-d');
 
-    if ($payment_amount <= 0) {
+    if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $payment_date) || strtotime($payment_date) === false) {
+        $error = 'Please provide a valid payment date.';
+    } elseif ($remaining_amount <= 0) {
+        $error = 'This fee is already fully paid.';
+    } elseif ($payment_amount <= 0) {
         $error = 'Payment amount must be greater than 0!';
-    } else if ($payment_amount > $fee['amount']) {
-        $error = 'Payment amount cannot exceed the fee amount!';
+    } else if ($payment_amount > $remaining_amount) {
+        $error = 'Payment amount cannot exceed the remaining due amount!';
     } else {
-        $new_status = ($payment_amount == $fee['amount']) ? 'Paid' : 'Partial';
+        $new_paid_amount = $fee['paid_amount'] + $payment_amount;
+        if ($new_paid_amount > (float) $fee['amount']) {
+            $new_paid_amount = (float) $fee['amount'];
+        }
+
+        $new_status = ($new_paid_amount >= (float) $fee['amount']) ? 'Paid' : 'Partial';
         $receipt_no = 'RCP' . time() . rand(1000, 9999);
 
         $stmt = $conn->prepare("
             UPDATE fees 
-            SET payment_status = ?, paid_date = ?, receipt_no = ?
+            SET paid_amount = ?, payment_status = ?, paid_date = ?, receipt_no = ?
             WHERE id = ?
         ");
-        $stmt->bind_param("sssi", $new_status, $payment_date, $receipt_no, $fee_id);
+        $stmt->bind_param("dsssi", $new_paid_amount, $new_status, $payment_date, $receipt_no, $fee_id);
 
         if ($stmt->execute()) {
-            $success = 'Payment collected successfully! Receipt No: ' . $receipt_no;
+            $remaining_after = max(0, (float) $fee['amount'] - $new_paid_amount);
+            $success = 'Payment collected successfully! Receipt No: ' . $receipt_no . '. Remaining: Rs ' . number_format($remaining_after, 2);
+            $fee['paid_amount'] = $new_paid_amount;
             $fee['payment_status'] = $new_status;
             $fee['receipt_no'] = $receipt_no;
+            $remaining_amount = $remaining_after;
         } else {
             $error = 'Error processing payment: ' . $stmt->error;
         }
@@ -96,6 +111,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <p class="mb-1"><strong>Admission No:</strong> <?php echo htmlspecialchars($fee['admission_no']); ?></p>
                         <p class="mb-1"><strong>Fee Type:</strong> <?php echo htmlspecialchars($fee['fee_type']); ?></p>
                         <p class="mb-1"><strong>Total Amount:</strong> ₹<?php echo number_format($fee['amount'], 2); ?></p>
+                        <p class="mb-1"><strong>Paid Amount:</strong> ₹<?php echo number_format($fee['paid_amount'], 2); ?></p>
+                        <p class="mb-1"><strong>Remaining Amount:</strong> ₹<?php echo number_format($remaining_amount, 2); ?></p>
                         <p class="mb-0"><strong>Due Date:</strong> <?php echo date('d-m-Y', strtotime($fee['due_date'])); ?></p>
                     </div>
                 </div>
@@ -123,8 +140,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label for="payment_amount" class="form-label">Payment Amount *</label>
-                    <input type="number" class="form-control" id="payment_amount" name="payment_amount" step="0.01" min="0" max="<?php echo $fee['amount']; ?>" placeholder="Enter amount" required>
-                    <small class="text-muted">Max: ₹<?php echo number_format($fee['amount'], 2); ?></small>
+                    <input type="number" class="form-control" id="payment_amount" name="payment_amount" step="0.01" min="0.01" max="<?php echo number_format($remaining_amount, 2, '.', ''); ?>" placeholder="Enter amount" required>
+                    <small class="text-muted">Max collectable now: ₹<?php echo number_format($remaining_amount, 2); ?></small>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label for="payment_date" class="form-label">Payment Date *</label>

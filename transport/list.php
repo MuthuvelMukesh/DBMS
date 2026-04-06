@@ -8,7 +8,7 @@ $limit = 10;
 $offset = ($page - 1) * $limit;
 
 // Fetch all transport assignments
-if (in_array($role, ['student', 'parent'], true)) {
+if ($role === 'student') {
     $stmt = $conn->prepare("
         SELECT ta.id, ta.student_id, ta.transport_id, ta.pickup_stop, ta.assignment_date as join_date, ta.status,
                s.admission_no, s.full_name, c.class_name,
@@ -22,6 +22,27 @@ if (in_array($role, ['student', 'parent'], true)) {
         LIMIT ? OFFSET ?
     ");
     $stmt->bind_param("iii", $_SESSION['user_id'], $limit, $offset);
+} elseif ($role === 'parent') {
+    if (ensure_parent_student_links_table($conn)) {
+        $stmt = $conn->prepare("
+            SELECT ta.id, ta.student_id, ta.transport_id, ta.pickup_stop, ta.assignment_date as join_date, ta.status,
+                   s.admission_no, s.full_name, c.class_name,
+                   t.route_name, t.vehicle_no, t.driver_name
+            FROM transport_assignments ta
+            JOIN students s ON ta.student_id = s.id
+            JOIN classes c ON s.class_id = c.id
+            JOIN transport t ON ta.transport_id = t.id
+            JOIN parent_student_links psl ON psl.student_id = s.id
+            WHERE ta.status = 'active'
+              AND psl.parent_user_id = ?
+              AND psl.status = 'active'
+            ORDER BY t.route_name, s.full_name
+            LIMIT ? OFFSET ?
+        ");
+        $stmt->bind_param("iii", $_SESSION['user_id'], $limit, $offset);
+    } else {
+        $stmt = null;
+    }
 } else {
     $stmt = $conn->prepare("
         SELECT ta.id, ta.student_id, ta.transport_id, ta.pickup_stop, ta.assignment_date as join_date, ta.status,
@@ -37,17 +58,31 @@ if (in_array($role, ['student', 'parent'], true)) {
     ");
     $stmt->bind_param("ii", $limit, $offset);
 }
-$stmt->execute();
-$assignments = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-$stmt->close();
+if ($stmt instanceof mysqli_stmt) {
+    $stmt->execute();
+    $assignments = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    $stmt->close();
+} else {
+    $assignments = [];
+}
 
 // Get total count
-if (in_array($role, ['student', 'parent'], true)) {
+if ($role === 'student') {
     $stmt_c = $conn->prepare("SELECT COUNT(*) as total FROM transport_assignments ta JOIN students s ON ta.student_id = s.id WHERE ta.status = 'active' AND s.user_id = ?");
     $stmt_c->bind_param("i", $_SESSION['user_id']);
     $stmt_c->execute();
     $count_row = $stmt_c->get_result()->fetch_assoc();
     $stmt_c->close();
+} elseif ($role === 'parent') {
+    if (ensure_parent_student_links_table($conn)) {
+        $stmt_c = $conn->prepare("SELECT COUNT(*) as total FROM transport_assignments ta JOIN students s ON ta.student_id = s.id JOIN parent_student_links psl ON psl.student_id = s.id WHERE ta.status = 'active' AND psl.parent_user_id = ? AND psl.status = 'active'");
+        $stmt_c->bind_param("i", $_SESSION['user_id']);
+        $stmt_c->execute();
+        $count_row = $stmt_c->get_result()->fetch_assoc();
+        $stmt_c->close();
+    } else {
+        $count_row = ['total' => 0];
+    }
 } else {
     $count_result = $conn->query("SELECT COUNT(*) as total FROM transport_assignments WHERE status = 'active'");
     $count_row = $count_result->fetch_assoc();

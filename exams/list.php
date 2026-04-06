@@ -24,6 +24,10 @@ if (in_array($role, ['student', 'parent'], true)) {
 // Get classes
 $classes_result = $conn->query("SELECT id, CONCAT(class_name, ' - ', section) as class_name FROM classes WHERE status = 'active' ORDER BY class_name");
 $classes = $classes_result->fetch_all(MYSQLI_ASSOC);
+$class_labels = [];
+foreach ($classes as $class_row) {
+    $class_labels[(int) $class_row['id']] = $class_row['class_name'];
+}
 
 // Build query
 $query = "SELECT id, exam_name, class_id, subject, exam_date, max_marks, pass_marks, status 
@@ -97,6 +101,7 @@ $stmt->close();
         <div class="row mb-3">
             <div class="col-md-6">
                 <form method="GET" action="">
+                    <input type="hidden" name="status" value="<?php echo htmlspecialchars($status_filter); ?>">
                     <?php if (!in_array($role, ['student', 'parent'], true)): ?>
                     <select name="class" class="form-select" onchange="this.form.submit();">
                         <option value="">All Classes</option>
@@ -113,6 +118,7 @@ $stmt->close();
             </div>
             <div class="col-md-6">
                 <form method="GET" action="">
+                    <input type="hidden" name="class" value="<?php echo (int) $class_filter; ?>">
                     <select name="status" class="form-select" onchange="this.form.submit();">
                         <option value="">All Status</option>
                         <option value="scheduled" <?php echo ($status_filter == 'scheduled') ? 'selected' : ''; ?>>Scheduled</option>
@@ -141,7 +147,7 @@ $stmt->close();
                         <?php foreach ($exams as $exam): ?>
                             <tr>
                                 <td><strong><?php echo htmlspecialchars($exam['exam_name']); ?></strong></td>
-                                <td><?php echo htmlspecialchars($exam['class_id']); ?></td>
+                                <td><?php echo htmlspecialchars($class_labels[(int) $exam['class_id']] ?? ('Class #' . (int) $exam['class_id'])); ?></td>
                                 <td><?php echo htmlspecialchars($exam['subject']); ?></td>
                                 <td><?php echo date('d-m-Y', strtotime($exam['exam_date'])); ?></td>
                                 <td><?php echo $exam['max_marks']; ?></td>
@@ -172,25 +178,25 @@ $stmt->close();
                 <ul class="pagination justify-content-center">
                     <?php if ($page > 1): ?>
                         <li class="page-item">
-                            <a class="page-link" href="?page=1">First</a>
+                            <a class="page-link" href="?page=1&amp;class=<?php echo urlencode((string) $class_filter); ?>&amp;status=<?php echo urlencode((string) $status_filter); ?>">First</a>
                         </li>
                         <li class="page-item">
-                            <a class="page-link" href="?page=<?php echo $page - 1; ?>">Previous</a>
+                            <a class="page-link" href="?page=<?php echo $page - 1; ?>&amp;class=<?php echo urlencode((string) $class_filter); ?>&amp;status=<?php echo urlencode((string) $status_filter); ?>">Previous</a>
                         </li>
                     <?php endif; ?>
 
                     <?php for ($i = max(1, $page - 2); $i <= min($total_pages, $page + 2); $i++): ?>
                         <li class="page-item <?php echo ($i == $page) ? 'active' : ''; ?>">
-                            <a class="page-link" href="?page=<?php echo $i; ?>"><?php echo $i; ?></a>
+                            <a class="page-link" href="?page=<?php echo $i; ?>&amp;class=<?php echo urlencode((string) $class_filter); ?>&amp;status=<?php echo urlencode((string) $status_filter); ?>"><?php echo $i; ?></a>
                         </li>
                     <?php endfor; ?>
 
                     <?php if ($page < $total_pages): ?>
                         <li class="page-item">
-                            <a class="page-link" href="?page=<?php echo $page + 1; ?>">Next</a>
+                            <a class="page-link" href="?page=<?php echo $page + 1; ?>&amp;class=<?php echo urlencode((string) $class_filter); ?>&amp;status=<?php echo urlencode((string) $status_filter); ?>">Next</a>
                         </li>
                         <li class="page-item">
-                            <a class="page-link" href="?page=<?php echo $total_pages; ?>">Last</a>
+                            <a class="page-link" href="?page=<?php echo $total_pages; ?>&amp;class=<?php echo urlencode((string) $class_filter); ?>&amp;status=<?php echo urlencode((string) $status_filter); ?>">Last</a>
                         </li>
                     <?php endif; ?>
                 </ul>

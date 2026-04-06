@@ -13,6 +13,86 @@ $user_id = $_SESSION['user_id'];
 $username = $_SESSION['username'];
 $role = $_SESSION['role'];
 
+if (empty($_SESSION['csrf_token'])) {
+    try {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    } catch (Throwable $e) {
+        $_SESSION['csrf_token'] = hash('sha256', session_id() . microtime(true));
+    }
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $submitted_token = $_POST['_csrf_token'] ?? ($_SERVER['HTTP_X_CSRF_TOKEN'] ?? '');
+    if (!is_string($submitted_token) || $submitted_token === '' || !hash_equals($_SESSION['csrf_token'], $submitted_token)) {
+        http_response_code(419);
+        echo 'Invalid request token. Please refresh the page and try again.';
+        exit();
+    }
+}
+
+if (!function_exists('csrf_token_value')) {
+    function csrf_token_value() {
+        return $_SESSION['csrf_token'] ?? '';
+    }
+}
+
+if (!function_exists('csrf_input')) {
+    function csrf_input() {
+        return '<input type="hidden" name="_csrf_token" value="' . htmlspecialchars(csrf_token_value(), ENT_QUOTES, 'UTF-8') . '">';
+    }
+}
+
+if (!function_exists('ensure_parent_student_links_table')) {
+    function ensure_parent_student_links_table($conn) {
+        static $checked = null;
+
+        if ($checked !== null) {
+            return $checked;
+        }
+
+        $sql = "CREATE TABLE IF NOT EXISTS parent_student_links (
+            id INT PRIMARY KEY AUTO_INCREMENT,
+            parent_user_id INT NOT NULL,
+            student_id INT NOT NULL,
+            relationship VARCHAR(50) DEFAULT NULL,
+            status ENUM('active', 'inactive') NOT NULL DEFAULT 'active',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE KEY uniq_parent_student (parent_user_id, student_id),
+            INDEX idx_parent_user (parent_user_id),
+            INDEX idx_student (student_id),
+            FOREIGN KEY (parent_user_id) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
+
+        $checked = (bool) $conn->query($sql);
+        return $checked;
+    }
+}
+
+if (!function_exists('get_parent_students')) {
+    function get_parent_students($conn, $parent_user_id) {
+        if (!ensure_parent_student_links_table($conn)) {
+            return [];
+        }
+
+        $stmt = $conn->prepare(
+            "SELECT s.id, s.admission_no, s.full_name, s.class_id, s.section
+             FROM parent_student_links psl
+             JOIN students s ON s.id = psl.student_id
+             WHERE psl.parent_user_id = ?
+               AND psl.status = 'active'
+               AND s.status = 'active'
+             ORDER BY s.full_name"
+        );
+        $stmt->bind_param('i', $parent_user_id);
+        $stmt->execute();
+        $rows = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        $stmt->close();
+
+        return $rows;
+    }
+}
+
 // Fetch Global Settings
 $settings_query = $conn->query("SELECT setting_key, setting_value FROM system_settings");
 $sys_settings = [];
@@ -29,17 +109,26 @@ $permissions = [
     'admin' => ['students', 'staff', 'classes', 'attendance', 'fees', 'exams', 'results', 'transport', 'hostel', 'settings', 'notices', 'SchoolMS', 'profile.php', 'dashboard.php', 'logout.php'],
     'teacher' => ['students', 'classes', 'attendance', 'exams', 'results', 'SchoolMS', 'profile.php', 'dashboard.php', 'logout.php'],
     'staff' => ['transport', 'hostel', 'SchoolMS', 'profile.php', 'dashboard.php', 'logout.php'],
-    'parent' => ['fees', 'attendance', 'results', 'SchoolMS', 'profile.php', 'dashboard.php', 'logout.php'],
+    'parent' => ['fees', 'attendance', 'results', 'transport', 'hostel', 'SchoolMS', 'profile.php', 'dashboard.php', 'logout.php'],
     'student' => ['fees', 'attendance', 'results', 'exams', 'transport', 'hostel', 'SchoolMS', 'profile.php', 'dashboard.php', 'logout.php']
 ];
 
 $current_script = basename($_SERVER['PHP_SELF']);
 $current_dir = basename(dirname($_SERVER['PHP_SELF']));
-$is_root_file = ($current_dir === 'SchoolMS' || $current_dir === 'htdocs' || $current_dir === ''); // Approximation for root
+$is_root_file = ($current_dir === 'SchoolMS' || $current_dir === 'htdocs' || $current_dir === '');
 
-if (!$is_root_file) {
-    if (!isset($permissions[$role]) || !in_array($current_dir, $permissions[$role])) {
-        // If they are not authorized for this directory module
+if (!isset($permissions[$role])) {
+    header("Location: " . BASE_URL . "dashboard.php?error=Access Denied");
+    exit();
+}
+
+if ($is_root_file) {
+    if (!in_array($current_script, $permissions[$role], true)) {
+        header("Location: " . BASE_URL . "dashboard.php?error=Access Denied");
+        exit();
+    }
+} else {
+    if (!in_array($current_dir, $permissions[$role], true)) {
         header("Location: " . BASE_URL . "dashboard.php?error=Access Denied");
         exit();
     }

@@ -21,7 +21,8 @@ if ($selected_exam > 0) {
 
     if ($exam_info) {
         // Get results
-        if (in_array($role, ['student', 'parent'], true)) {
+        $stmt = null;
+        if ($role === 'student') {
             $stmt = $conn->prepare("
                 SELECT r.id, r.student_id, r.marks_obtained, r.grade,
                        s.admission_no, s.full_name
@@ -31,6 +32,21 @@ if ($selected_exam > 0) {
                 ORDER BY r.marks_obtained DESC
             ");
             $stmt->bind_param("ii", $selected_exam, $_SESSION['user_id']);
+        } elseif ($role === 'parent') {
+            if (ensure_parent_student_links_table($conn)) {
+                $stmt = $conn->prepare("
+                    SELECT r.id, r.student_id, r.marks_obtained, r.grade,
+                           s.admission_no, s.full_name
+                    FROM results r
+                    JOIN students s ON r.student_id = s.id
+                    JOIN parent_student_links psl ON psl.student_id = s.id
+                    WHERE r.exam_id = ?
+                      AND psl.parent_user_id = ?
+                      AND psl.status = 'active'
+                    ORDER BY r.marks_obtained DESC
+                ");
+                $stmt->bind_param("ii", $selected_exam, $_SESSION['user_id']);
+            }
         } else {
             $stmt = $conn->prepare("
                 SELECT r.id, r.student_id, r.marks_obtained, r.grade,
@@ -42,10 +58,12 @@ if ($selected_exam > 0) {
             ");
             $stmt->bind_param("i", $selected_exam);
         }
-        $stmt->execute();
-        $results_result = $stmt->get_result();
-        $results = $results_result->fetch_all(MYSQLI_ASSOC);
-        $stmt->close();
+        if ($stmt instanceof mysqli_stmt) {
+            $stmt->execute();
+            $results_result = $stmt->get_result();
+            $results = $results_result->fetch_all(MYSQLI_ASSOC);
+            $stmt->close();
+        }
     }
 }
 ?>
