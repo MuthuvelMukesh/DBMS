@@ -1,51 +1,112 @@
 <?php
 require_once '../header.php';
 
+$fees = [];
+$error = '';
+$schema_notice = '';
+
+$fees_columns = [];
+$columns_result = $conn->query("SHOW COLUMNS FROM fees");
+if ($columns_result instanceof mysqli_result) {
+    while ($column = $columns_result->fetch_assoc()) {
+        $fees_columns[$column['Field']] = true;
+    }
+    $columns_result->free();
+} else {
+    $error = 'Unable to inspect fees table schema: ' . $conn->error;
+}
+
+$has_paid_amount = isset($fees_columns['paid_amount']);
+$has_receipt_no = isset($fees_columns['receipt_no']);
+$has_created_at = isset($fees_columns['created_at']);
+
+if (!$has_paid_amount) {
+    $schema_notice = 'Legacy fees schema detected. Run db_patch_fees_paid_amount.sql to enable partial payment tracking.';
+}
+
+$paid_amount_select = $has_paid_amount
+    ? 'f.paid_amount'
+    : "CASE WHEN f.payment_status = 'Paid' THEN f.amount ELSE 0 END AS paid_amount";
+$receipt_no_select = $has_receipt_no
+    ? 'f.receipt_no'
+    : "NULL AS receipt_no";
+$order_by = $has_created_at ? 'f.created_at DESC' : 'f.id DESC';
+
 // Adjust based on RBAC
-if ($role === 'student') {
-    $stmt = $conn->prepare("
-        SELECT f.id, f.student_id, f.fee_type, f.amount, f.paid_amount, f.due_date, f.paid_date,
-               f.payment_status, f.receipt_no, s.admission_no, s.full_name
-        FROM fees f
-        JOIN students s ON f.student_id = s.id
-        WHERE s.user_id = ?
-        ORDER BY f.created_at DESC
-    ");
-    $stmt->bind_param("i", $_SESSION['user_id']);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $fees = $result->fetch_all(MYSQLI_ASSOC);
-    $stmt->close();
-} elseif ($role === 'parent') {
-    if (!ensure_parent_student_links_table($conn)) {
-        $fees = [];
-    } else {
+if ($error === '') {
+    if ($role === 'student') {
         $stmt = $conn->prepare("
-            SELECT f.id, f.student_id, f.fee_type, f.amount, f.paid_amount, f.due_date, f.paid_date,
-                   f.payment_status, f.receipt_no, s.admission_no, s.full_name
+            SELECT f.id, f.student_id, f.fee_type, f.amount, {$paid_amount_select}, f.due_date, f.paid_date,
+                   f.payment_status, {$receipt_no_select}, s.admission_no, s.full_name
             FROM fees f
             JOIN students s ON f.student_id = s.id
-            JOIN parent_student_links psl ON psl.student_id = s.id
-            WHERE psl.parent_user_id = ?
-              AND psl.status = 'active'
-            ORDER BY f.created_at DESC
+            WHERE s.user_id = ?
+            ORDER BY {$order_by}
         ");
-        $stmt->bind_param("i", $_SESSION['user_id']);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $fees = $result->fetch_all(MYSQLI_ASSOC);
-        $stmt->close();
+
+        if ($stmt) {
+            $stmt->bind_param("i", $_SESSION['user_id']);
+            if ($stmt->execute()) {
+                $result = $stmt->get_result();
+                if ($result instanceof mysqli_result) {
+                    $fees = $result->fetch_all(MYSQLI_ASSOC);
+                } else {
+                    $error = 'Unable to read fee records for this user.';
+                }
+            } else {
+                $error = 'Unable to load fee records: ' . $stmt->error;
+            }
+            $stmt->close();
+        } else {
+            $error = 'Unable to prepare fee query: ' . $conn->error;
+        }
+    } elseif ($role === 'parent') {
+        if (!ensure_parent_student_links_table($conn)) {
+            $error = 'Unable to load parent-student links.';
+        } else {
+            $stmt = $conn->prepare("
+                SELECT f.id, f.student_id, f.fee_type, f.amount, {$paid_amount_select}, f.due_date, f.paid_date,
+                       f.payment_status, {$receipt_no_select}, s.admission_no, s.full_name
+                FROM fees f
+                JOIN students s ON f.student_id = s.id
+                JOIN parent_student_links psl ON psl.student_id = s.id
+                WHERE psl.parent_user_id = ?
+                  AND psl.status = 'active'
+                ORDER BY {$order_by}
+            ");
+
+            if ($stmt) {
+                $stmt->bind_param("i", $_SESSION['user_id']);
+                if ($stmt->execute()) {
+                    $result = $stmt->get_result();
+                    if ($result instanceof mysqli_result) {
+                        $fees = $result->fetch_all(MYSQLI_ASSOC);
+                    } else {
+                        $error = 'Unable to read fee records for linked students.';
+                    }
+                } else {
+                    $error = 'Unable to load fee records: ' . $stmt->error;
+                }
+                $stmt->close();
+            } else {
+                $error = 'Unable to prepare fee query: ' . $conn->error;
+            }
+        }
+    } else {
+        $query = "
+            SELECT f.id, f.student_id, f.fee_type, f.amount, {$paid_amount_select}, f.due_date, f.paid_date,
+                   f.payment_status, {$receipt_no_select}, s.admission_no, s.full_name
+            FROM fees f
+            JOIN students s ON f.student_id = s.id
+            ORDER BY {$order_by}
+        ";
+        $result = $conn->query($query);
+        if ($result instanceof mysqli_result) {
+            $fees = $result->fetch_all(MYSQLI_ASSOC);
+        } else {
+            $error = 'Unable to load fee records: ' . $conn->error;
+        }
     }
-} else {
-    $query = "
-        SELECT f.id, f.student_id, f.fee_type, f.amount, f.paid_amount, f.due_date, f.paid_date,
-               f.payment_status, f.receipt_no, s.admission_no, s.full_name
-        FROM fees f
-        JOIN students s ON f.student_id = s.id
-        ORDER BY f.created_at DESC
-    ";
-    $result = $conn->query($query);
-    $fees = $result->fetch_all(MYSQLI_ASSOC);
 }
 ?>
 
@@ -59,6 +120,18 @@ if ($role === 'student') {
         <?php endif; ?>
     </div>
     <div class="card-body">
+        <?php if (!empty($error)): ?>
+            <div class="alert alert-danger" role="alert">
+                <i class="fas fa-exclamation-circle"></i> <?php echo htmlspecialchars($error); ?>
+            </div>
+        <?php endif; ?>
+
+        <?php if (!empty($schema_notice)): ?>
+            <div class="alert alert-warning" role="alert">
+                <i class="fas fa-triangle-exclamation"></i> <?php echo htmlspecialchars($schema_notice); ?>
+            </div>
+        <?php endif; ?>
+
         <div class="table-responsive">
             <table class="table table-hover datatable align-middle">
                 <thead class="table-light">

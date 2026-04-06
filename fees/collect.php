@@ -8,6 +8,7 @@ if (!in_array($role, ['admin'])) {
 
 $error = '';
 $success = '';
+$schema_notice = '';
 $fee_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
 if ($fee_id == 0) {
@@ -15,22 +16,74 @@ if ($fee_id == 0) {
     exit();
 }
 
+$fees_columns = [];
+$columns_result = $conn->query("SHOW COLUMNS FROM fees");
+if ($columns_result instanceof mysqli_result) {
+    while ($column = $columns_result->fetch_assoc()) {
+        $fees_columns[$column['Field']] = true;
+    }
+    $columns_result->free();
+} else {
+    $error = 'Unable to inspect fees table schema: ' . $conn->error;
+}
+
+$has_paid_amount = isset($fees_columns['paid_amount']);
+$has_receipt_no = isset($fees_columns['receipt_no']);
+
+if (!$has_paid_amount) {
+    $schema_notice = 'Legacy fees schema detected. Run db_patch_fees_paid_amount.sql to enable partial payment tracking.';
+}
+
+$paid_amount_select = $has_paid_amount
+    ? 'f.paid_amount'
+    : "CASE WHEN f.payment_status = 'Paid' THEN f.amount ELSE 0 END AS paid_amount";
+$receipt_no_select = $has_receipt_no
+    ? 'f.receipt_no'
+    : "NULL AS receipt_no";
+
 // Fetch fee details
-$stmt = $conn->prepare("
-    SELECT f.id, f.student_id, f.fee_type, f.amount, f.paid_amount, f.due_date, f.payment_status,
-           s.admission_no, s.full_name
-    FROM fees f
-    JOIN students s ON f.student_id = s.id
-    WHERE f.id = ?
-");
-$stmt->bind_param("i", $fee_id);
-$stmt->execute();
-$result = $stmt->get_result();
-$fee = $result->fetch_assoc();
-$stmt->close();
+$fee = null;
+if ($error === '') {
+    $stmt = $conn->prepare("
+        SELECT f.id, f.student_id, f.fee_type, f.amount, {$paid_amount_select}, f.due_date, f.payment_status,
+               {$receipt_no_select}, s.admission_no, s.full_name
+        FROM fees f
+        JOIN students s ON f.student_id = s.id
+        WHERE f.id = ?
+    ");
+
+    if ($stmt) {
+        $stmt->bind_param("i", $fee_id);
+        if ($stmt->execute()) {
+            $result = $stmt->get_result();
+            if ($result instanceof mysqli_result) {
+                $fee = $result->fetch_assoc();
+            } else {
+                $error = 'Unable to read fee details.';
+            }
+        } else {
+            $error = 'Unable to load fee details: ' . $stmt->error;
+        }
+        $stmt->close();
+    } else {
+        $error = 'Unable to prepare fee details query: ' . $conn->error;
+    }
+}
 
 if (!$fee) {
-    header("Location: list.php");
+    if ($error === '') {
+        header("Location: list.php");
+        exit();
+    }
+
+    ?>
+    <h1 class="page-title"><i class="fas fa-cash-register"></i> Collect Payment</h1>
+    <div class="alert alert-danger" role="alert">
+        <i class="fas fa-exclamation-circle"></i> <?php echo htmlspecialchars($error); ?>
+    </div>
+    <a href="list.php" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back</a>
+    <?php
+    require_once '../footer.php';
     exit();
 }
 
@@ -47,35 +100,81 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'This fee is already fully paid.';
     } elseif ($payment_amount <= 0) {
         $error = 'Payment amount must be greater than 0!';
+    } elseif (!$has_paid_amount && $payment_amount < (float) $fee['amount']) {
+        $error = 'Partial payments require the paid_amount column. Please run db_patch_fees_paid_amount.sql first.';
     } else if ($payment_amount > $remaining_amount) {
         $error = 'Payment amount cannot exceed the remaining due amount!';
     } else {
-        $new_paid_amount = $fee['paid_amount'] + $payment_amount;
-        if ($new_paid_amount > (float) $fee['amount']) {
-            $new_paid_amount = (float) $fee['amount'];
-        }
+        if ($has_paid_amount) {
+            $new_paid_amount = $fee['paid_amount'] + $payment_amount;
+            if ($new_paid_amount > (float) $fee['amount']) {
+                $new_paid_amount = (float) $fee['amount'];
+            }
 
-        $new_status = ($new_paid_amount >= (float) $fee['amount']) ? 'Paid' : 'Partial';
+            $new_status = ($new_paid_amount >= (float) $fee['amount']) ? 'Paid' : 'Partial';
+        } else {
+            $new_paid_amount = (float) $fee['amount'];
+            $new_status = 'Paid';
+        }
         $receipt_no = 'RCP' . time() . rand(1000, 9999);
 
-        $stmt = $conn->prepare("
-            UPDATE fees 
-            SET paid_amount = ?, payment_status = ?, paid_date = ?, receipt_no = ?
-            WHERE id = ?
-        ");
-        $stmt->bind_param("dsssi", $new_paid_amount, $new_status, $payment_date, $receipt_no, $fee_id);
+        if ($has_paid_amount && $has_receipt_no) {
+            $stmt = $conn->prepare("
+                UPDATE fees 
+                SET paid_amount = ?, payment_status = ?, paid_date = ?, receipt_no = ?
+                WHERE id = ?
+            ");
+            if ($stmt) {
+                $stmt->bind_param("dsssi", $new_paid_amount, $new_status, $payment_date, $receipt_no, $fee_id);
+            }
+        } elseif ($has_paid_amount) {
+            $stmt = $conn->prepare("
+                UPDATE fees 
+                SET paid_amount = ?, payment_status = ?, paid_date = ?
+                WHERE id = ?
+            ");
+            if ($stmt) {
+                $stmt->bind_param("dssi", $new_paid_amount, $new_status, $payment_date, $fee_id);
+            }
+        } elseif ($has_receipt_no) {
+            $stmt = $conn->prepare("
+                UPDATE fees 
+                SET payment_status = ?, paid_date = ?, receipt_no = ?
+                WHERE id = ?
+            ");
+            if ($stmt) {
+                $stmt->bind_param("sssi", $new_status, $payment_date, $receipt_no, $fee_id);
+            }
+        } else {
+            $stmt = $conn->prepare("
+                UPDATE fees 
+                SET payment_status = ?, paid_date = ?
+                WHERE id = ?
+            ");
+            if ($stmt) {
+                $stmt->bind_param("ssi", $new_status, $payment_date, $fee_id);
+            }
+        }
 
-        if ($stmt->execute()) {
+        if (!$stmt) {
+            $error = 'Error processing payment: ' . $conn->error;
+        } elseif ($stmt->execute()) {
             $remaining_after = max(0, (float) $fee['amount'] - $new_paid_amount);
-            $success = 'Payment collected successfully! Receipt No: ' . $receipt_no . '. Remaining: Rs ' . number_format($remaining_after, 2);
+            $success = 'Payment collected successfully!'
+                . ($has_receipt_no ? ' Receipt No: ' . $receipt_no . '.' : '')
+                . ' Remaining: Rs ' . number_format($remaining_after, 2);
             $fee['paid_amount'] = $new_paid_amount;
             $fee['payment_status'] = $new_status;
-            $fee['receipt_no'] = $receipt_no;
+            if ($has_receipt_no) {
+                $fee['receipt_no'] = $receipt_no;
+            }
             $remaining_amount = $remaining_after;
         } else {
             $error = 'Error processing payment: ' . $stmt->error;
         }
-        $stmt->close();
+        if ($stmt) {
+            $stmt->close();
+        }
     }
 }
 ?>
@@ -87,6 +186,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <h5 class="mb-0">Payment Collection</h5>
     </div>
     <div class="card-body">
+        <?php if (!empty($schema_notice)): ?>
+            <div class="alert alert-warning" role="alert">
+                <i class="fas fa-triangle-exclamation"></i> <?php echo htmlspecialchars($schema_notice); ?>
+            </div>
+        <?php endif; ?>
+
         <?php if (!empty($error)): ?>
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
                 <i class="fas fa-exclamation-circle"></i> <?php echo htmlspecialchars($error); ?>
@@ -156,7 +261,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </form>
         <?php else: ?>
         <div class="alert alert-info">
-            <i class="fas fa-check-circle"></i> This fee has already been paid. Receipt No: <strong><?php echo htmlspecialchars($fee['receipt_no']); ?></strong>
+            <i class="fas fa-check-circle"></i> This fee has already been paid. Receipt No: <strong><?php echo htmlspecialchars($fee['receipt_no'] ?? 'N/A'); ?></strong>
         </div>
         <a href="list.php" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back</a>
         <?php endif; ?>

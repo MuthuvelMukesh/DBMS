@@ -2,31 +2,65 @@
 require_once '../header.php';
 
 $fee_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+$error = '';
+$schema_notice = '';
 
 if ($fee_id == 0) {
     header("Location: list.php");
     exit();
 }
 
+$fees_columns = [];
+$columns_result = $conn->query("SHOW COLUMNS FROM fees");
+if ($columns_result instanceof mysqli_result) {
+    while ($column = $columns_result->fetch_assoc()) {
+        $fees_columns[$column['Field']] = true;
+    }
+    $columns_result->free();
+} else {
+    $error = 'Unable to inspect fees table schema: ' . $conn->error;
+}
+
+$has_paid_amount = isset($fees_columns['paid_amount']);
+$has_receipt_no = isset($fees_columns['receipt_no']);
+$has_created_at = isset($fees_columns['created_at']);
+
+if (!$has_paid_amount) {
+    $schema_notice = 'Legacy fees schema detected. Run db_patch_fees_paid_amount.sql to enable partial payment tracking.';
+}
+
+$paid_amount_select = $has_paid_amount
+    ? 'f.paid_amount'
+    : "CASE WHEN f.payment_status = 'Paid' THEN f.amount ELSE 0 END AS paid_amount";
+$receipt_no_select = $has_receipt_no
+    ? 'f.receipt_no'
+    : "NULL AS receipt_no";
+$created_at_select = $has_created_at
+    ? 'f.created_at'
+    : "NULL AS created_at";
+
 // Fetch fee details
+$stmt = null;
 if ($role === 'student') {
     $stmt = $conn->prepare("
-        SELECT f.id, f.student_id, f.fee_type, f.amount, f.paid_amount, f.due_date, f.paid_date,
-               f.payment_status, f.receipt_no, f.created_at,
+        SELECT f.id, f.student_id, f.fee_type, f.amount, {$paid_amount_select}, f.due_date, f.paid_date,
+               f.payment_status, {$receipt_no_select}, {$created_at_select},
                s.admission_no, s.full_name, s.class_id, s.section
         FROM fees f
         JOIN students s ON f.student_id = s.id
         WHERE f.id = ? AND s.user_id = ?
     ");
-    $stmt->bind_param("ii", $fee_id, $_SESSION['user_id']);
+    if ($stmt) {
+        $stmt->bind_param("ii", $fee_id, $_SESSION['user_id']);
+    }
 } elseif ($role === 'parent') {
     if (!ensure_parent_student_links_table($conn)) {
         header("Location: list.php");
         exit();
     }
     $stmt = $conn->prepare("
-        SELECT f.id, f.student_id, f.fee_type, f.amount, f.paid_amount, f.due_date, f.paid_date,
-               f.payment_status, f.receipt_no, f.created_at,
+        SELECT f.id, f.student_id, f.fee_type, f.amount, {$paid_amount_select}, f.due_date, f.paid_date,
+               f.payment_status, {$receipt_no_select}, {$created_at_select},
                s.admission_no, s.full_name, s.class_id, s.section
         FROM fees f
         JOIN students s ON f.student_id = s.id
@@ -35,30 +69,65 @@ if ($role === 'student') {
           AND psl.parent_user_id = ?
           AND psl.status = 'active'
     ");
-    $stmt->bind_param("ii", $fee_id, $_SESSION['user_id']);
+    if ($stmt) {
+        $stmt->bind_param("ii", $fee_id, $_SESSION['user_id']);
+    }
 } else {
     $stmt = $conn->prepare("
-        SELECT f.id, f.student_id, f.fee_type, f.amount, f.paid_amount, f.due_date, f.paid_date,
-               f.payment_status, f.receipt_no, f.created_at,
+        SELECT f.id, f.student_id, f.fee_type, f.amount, {$paid_amount_select}, f.due_date, f.paid_date,
+               f.payment_status, {$receipt_no_select}, {$created_at_select},
                s.admission_no, s.full_name, s.class_id, s.section
         FROM fees f
         JOIN students s ON f.student_id = s.id
         WHERE f.id = ?
     ");
-    $stmt->bind_param("i", $fee_id);
+    if ($stmt) {
+        $stmt->bind_param("i", $fee_id);
+    }
 }
-$stmt->execute();
-$result = $stmt->get_result();
-$fee = $result->fetch_assoc();
-$stmt->close();
+
+$fee = null;
+if ($error === '' && !$stmt) {
+    $error = 'Unable to prepare receipt query: ' . $conn->error;
+}
+
+if ($error === '' && $stmt) {
+    if ($stmt->execute()) {
+        $result = $stmt->get_result();
+        if ($result instanceof mysqli_result) {
+            $fee = $result->fetch_assoc();
+        } else {
+            $error = 'Unable to read receipt details.';
+        }
+    } else {
+        $error = 'Unable to load receipt details: ' . $stmt->error;
+    }
+    $stmt->close();
+}
 
 if (!$fee) {
-    header("Location: list.php");
+    if ($error === '') {
+        header("Location: list.php");
+        exit();
+    }
+
+    ?>
+    <h1 class="page-title"><i class="fas fa-file-invoice"></i> Fee Receipt</h1>
+    <div class="alert alert-danger" role="alert">
+        <i class="fas fa-exclamation-circle"></i> <?php echo htmlspecialchars($error); ?>
+    </div>
+    <a href="list.php" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back</a>
+    <?php
+    require_once '../footer.php';
     exit();
 }
 
 $paid_amount = (float) ($fee['paid_amount'] ?? 0);
 $remaining_amount = max(0, (float) $fee['amount'] - $paid_amount);
+$transaction_date_source = !empty($fee['paid_date'])
+    ? $fee['paid_date']
+    : (!empty($fee['created_at']) ? $fee['created_at'] : date('Y-m-d'));
+$payment_date_source = !empty($fee['paid_date']) ? $fee['paid_date'] : null;
 ?>
 
 <!DOCTYPE html>
@@ -165,15 +234,21 @@ $remaining_amount = max(0, (float) $fee['amount'] - $paid_amount);
             <p class="mt-2">PAYMENT RECEIPT</p>
         </div>
 
+        <?php if (!empty($schema_notice)): ?>
+            <div class="alert alert-warning py-2 px-3" role="alert">
+                <i class="fas fa-triangle-exclamation"></i> <?php echo htmlspecialchars($schema_notice); ?>
+            </div>
+        <?php endif; ?>
+
         <div class="receipt-body">
             <div class="receipt-row">
                 <span class="label">Receipt Number</span>
-                <span class="value"><strong><?php echo htmlspecialchars($fee['receipt_no']); ?></strong></span>
+                <span class="value"><strong><?php echo htmlspecialchars($fee['receipt_no'] ?? 'N/A'); ?></strong></span>
             </div>
 
             <div class="receipt-row">
                 <span class="label">Date</span>
-                <span class="value"><?php echo date('d-m-Y', strtotime($fee['paid_date'] ?? $fee['created_at'])); ?></span>
+                <span class="value"><?php echo date('d-m-Y', strtotime($transaction_date_source)); ?></span>
             </div>
 
             <div style="margin: 1.5rem 0; padding: 1rem; background: #f8f9fa; border-radius: 5px;">
@@ -216,7 +291,7 @@ $remaining_amount = max(0, (float) $fee['amount'] - $paid_amount);
                 </div>
                 <div class="receipt-row" style="border: none;">
                     <span class="label">Payment Date</span>
-                    <span class="value"><?php echo date('d-m-Y', strtotime($fee['paid_date'] ?? date('Y-m-d'))); ?></span>
+                    <span class="value"><?php echo $payment_date_source ? date('d-m-Y', strtotime($payment_date_source)) : 'N/A'; ?></span>
                 </div>
             </div>
 
