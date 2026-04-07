@@ -1,7 +1,7 @@
             </div>
         </div>
     </div>
-    <footer class="bg-dark text-white text-center py-4 mt-4">
+    <footer class="bg-white text-dark text-center py-4 mt-4 border-top">
         <div class="container">
             <p class="mb-0">&copy; 2026 School Management System. All rights reserved.</p>
         </div>

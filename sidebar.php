@@ -13,7 +13,7 @@ $role = $_SESSION['role'];
         <i class="fas fa-graduation-cap"></i>
         <span class="sidebar-text">School<span>MS</span></span>
     </a>
-    <nav class="navbar navbar-expand-lg navbar-dark w-100 p-0 flex-column">     
+    <nav class="navbar navbar-expand-lg w-100 p-0 flex-column">     
         <ul class="navbar-nav flex-column w-100">
             <li class="nav-item">
                 <a class="nav-link" href="<?php echo BASE_URL; ?>dashboard.php">

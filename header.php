@@ -185,34 +185,39 @@ if ($is_root_file) {
             padding: 1.25rem 1.5rem;
         }
         /* Dashboard Stats Cards Overrides */
-        .card.bg-primary { background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%) !important; border: none; }
-        .card.bg-success { background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important; border: none; }
-        .card.bg-warning { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important; border: none; }
-        .card.bg-danger { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important; border: none; }
-        .card.bg-info { background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%) !important; border: none; }
+        .card.bg-primary { background: #eff6ff !important; color: #1e3a8a !important; border: 1px solid #bfdbfe !important; }
+        .card.bg-success { background: #f0fdf4 !important; color: #064e3b !important; border: 1px solid #bbf7d0 !important; }
+        .card.bg-warning { background: #fffbeb !important; color: #78350f !important; border: 1px solid #fde68a !important; }
+        .card.bg-danger { background: #fef2f2 !important; color: #7f1d1d !important; border: 1px solid #fecaca !important; }
+        .card.bg-info { background: #ecfeff !important; color: #164e63 !important; border: 1px solid #a5f3fc !important; }
+        .card[class*="bg-"] { color: inherit !important; }
+        .card[class*="bg-"] * { color: inherit !important; }
+        .card .card-body h5, .card .card-body h2 { color: inherit !important; }
+        .card .display-4 { color: inherit !important; }
         
         .main-wrapper {
             display: flex;
         }
         .sidebar-wrapper {
             width: 260px;
-            background: #0f172a;
+            background: #ffffff;
             min-height: 100vh;
             position: fixed;
             left: 0;
             top: 0;
-            color: #e2e8f0;
+            color: #334155;
             overflow-y: auto;
             z-index: 1000;
+            border-right: 1px solid #e2e8f0;
             box-shadow: 4px 0 15px rgba(0,0,0,0.05);
             transition: all 0.3s ease;
         }
         .sidebar-wrapper::-webkit-scrollbar { width: 5px; }
-        .sidebar-wrapper::-webkit-scrollbar-thumb { background: #334155; border-radius: 5px; }
+        .sidebar-wrapper::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 5px; }
         
         /* Sidebar Link Enhancements */
         .sidebar-wrapper .nav-item .nav-link { justify-content: flex-start;
-            color: #cbd5e1;
+            color: #475569;
             font-weight: 600;
             padding: 0.85rem 1.25rem;
             border-radius: 0.5rem;
@@ -225,19 +230,19 @@ if ($is_root_file) {
             width: 24px;
             font-size: 1.1rem;
             margin-right: 10px;
-            color: #94a3b8;
+            color: #64748b;
             transition: all 0.2s ease;
         }
         .sidebar-wrapper .nav-item .nav-link:hover, 
         .sidebar-wrapper .nav-item .nav-link:focus,
         .sidebar-wrapper .nav-item .nav-link[aria-expanded="true"] {
-            color: #ffffff;
-            background: rgba(255, 255, 255, 0.08);
+            color: #0f172a;
+            background: #f1f5f9;
             transform: translateX(3px);
         }
         .sidebar-wrapper .nav-item .nav-link:hover i,
         .sidebar-wrapper .nav-item .nav-link[aria-expanded="true"] i {
-            color: #38bdf8;
+            color: #3b82f6;
         }
         .sidebar-wrapper .nav-item .collapse .nav-link {
             font-weight: 500;
@@ -248,7 +253,25 @@ if ($is_root_file) {
         }
         .sidebar-wrapper .nav-item .collapse .nav-link:hover {
             background: transparent;
-            color: #38bdf8;
+            color: #3b82f6;
+        }
+        .sidebar-brand {
+            padding: 1.5rem 1.25rem;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+        }
+        .sidebar-brand i {
+            color: #3b82f6;
+            margin-right: 10px;
+        }
+        .sidebar-brand span {
+            color: #0f172a;
+        }
+        .sidebar-brand span span {
+            color: #3b82f6;
         }
         
         .content-wrapper {

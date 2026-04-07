@@ -126,7 +126,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && empty($error)) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body {
-            background: linear-gradient(135deg, #0f172a 0%, #334155 100%);
+            background: linear-gradient(135deg, #e0e7ff 0%, #f1f5f9 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
