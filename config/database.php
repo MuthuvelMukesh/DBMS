@@ -1,5 +1,17 @@
 <?php
-ob_start();
+/**
+ * Database Configuration
+ * 
+ * Environment variables:
+ * - DB_HOST: Database hostname (default: localhost)
+ * - DB_USER: Database username (default: root)
+ * - DB_PASS: Database password (default: 1234)
+ * - DB_NAME: Database name (default: schoolms)
+ */
+
+if (PHP_SAPI === 'cli') {
+    ob_start();
+}
 
 $servername = getenv('DB_HOST') ?: 'localhost';
 $username = getenv('DB_USER') ?: 'root';
@@ -16,5 +28,7 @@ if ($conn->connect_error) {
 
 $conn->set_charset('utf8mb4');
 
-$base_url = getenv('BASE_URL') ?: '/SchoolMS/';
-define('BASE_URL', $base_url);
+// Define base URL if not already defined
+if (!defined('BASE_URL')) {
+    define('BASE_URL', getenv('BASE_URL') ?: '/SchoolMS/');
+}

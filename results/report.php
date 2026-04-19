@@ -1,5 +1,5 @@
 <?php
-require_once '../header.php';
+require_once dirname(__DIR__) . '/includes/header.php';
 
 $selected_exam = isset($_GET['exam']) ? (int)$_GET['exam'] : 0;
 
@@ -97,6 +97,7 @@ if ($selected_exam > 0) {
 
         <div class="table-responsive">
             <table class="table table-hover">
+                <caption class="visually-hidden">Exam result rankings and performance percentages</caption>
                 <thead class="table-light">
                     <tr>
                         <th>Rank</th>
@@ -123,7 +124,7 @@ if ($selected_exam > 0) {
                             <td>
                                 <div class="progress" style="height: 1.5rem;">
                                     <div class="progress-bar bg-<?php echo ($percentage >= 70) ? 'success' : (($percentage >= 50) ? 'warning' : 'danger'); ?>" 
-                                         style="width: <?php echo min($percentage, 100); ?>%;" role="progressbar">
+                                         style="width: <?php echo min($percentage, 100); ?>%;" role="progressbar" aria-valuenow="<?php echo round($percentage, 1); ?>" aria-valuemin="0" aria-valuemax="100" aria-label="<?php echo htmlspecialchars($result['full_name']); ?> percentage <?php echo round($percentage, 1); ?> percent">
                                         <?php echo round($percentage, 1); ?>%
                                     </div>
                                 </div>
@@ -203,8 +204,8 @@ if ($selected_exam > 0) {
         <div class="d-flex gap-2">
             <?php if (in_array($role, ['admin', 'teacher'], true)): ?>
             <a href="add.php?exam=<?php echo $selected_exam; ?>" class="btn btn-primary"><i class="fas fa-edit"></i> Edit Results</a>
+            <a href="marksheet.php?exam=<?php echo $selected_exam; ?>" target="_blank" rel="noopener noreferrer" class="btn btn-success"><i class="fas fa-file-pdf"></i> View Marksheet</a>
             <?php endif; ?>
-            <a href="marksheet.php?exam=<?php echo $selected_exam; ?>" target="_blank" class="btn btn-success"><i class="fas fa-file-pdf"></i> View Marksheet</a>
         </div>
 
         <?php elseif ($selected_exam > 0): ?>
@@ -215,4 +216,4 @@ if ($selected_exam > 0) {
     </div>
 </div>
 
-<?php require_once '../footer.php'; ?>
+<?php require_once dirname(__DIR__) . '/includes/footer.php'; ?>

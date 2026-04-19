@@ -1,5 +1,5 @@
 <?php
-require_once '../header.php';
+require_once dirname(__DIR__) . '/includes/header.php';
 
 $fee_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 $error = '';
@@ -26,7 +26,7 @@ $has_receipt_no = isset($fees_columns['receipt_no']);
 $has_created_at = isset($fees_columns['created_at']);
 
 if (!$has_paid_amount) {
-    $schema_notice = 'Legacy fees schema detected. Run db_patch_fees_paid_amount.sql to enable partial payment tracking.';
+    $schema_notice = 'Legacy fees schema detected. Run database/patches/004_fees_paid_amount.sql to enable partial payment tracking.';
 }
 
 $paid_amount_select = $has_paid_amount
@@ -118,7 +118,7 @@ if (!$fee) {
     </div>
     <a href="list.php" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back</a>
     <?php
-    require_once '../footer.php';
+    require_once dirname(__DIR__) . '/includes/footer.php';
     exit();
 }
 
@@ -323,7 +323,7 @@ $payment_date_source = !empty($fee['paid_date']) ? $fee['paid_date'] : null;
     </div>
 
     <div class="print-button">
-        <a href="javascript:window.print()" class="btn btn-primary"><i class="fas fa-print"></i> Print Receipt</a>
+        <button type="button" class="btn btn-primary" onclick="window.print();"><i class="fas fa-print"></i> Print Receipt</button>
         <a href="list.php" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back</a>
     </div>
 

@@ -1,40 +1,121 @@
-# Integrated School Operations Management System
+# SchoolMS
 
-A robust, feature-rich PHP & MySQL School Management System.
+SchoolMS is a PHP and MySQL school management system with role-based access, academic workflows, fee tracking, transport and hostel operations, and admin-managed account onboarding.
 
-## 🚀 Features Implemented So Far
+This documentation is aligned with the current codebase as of 2026-04-19.
 
-### 1. Database Schema Synchronization & Full ERD Mapping
-*   **Comprehensive Architecture Mapping:** Full system modeled using Chen Notation (11 Entities fully synchronized).
-*   **Database Scaffold:** Verified all foundational tables (`users`, `students`, `staff`, `classes`, `attendance`, `fees`, `exams`, `results`, `transport`, `hostel`, `notices`) perfectly align with constraints and relationships.
-*   **Insecure Direct Object Reference (IDOR) Hardening:** Hard-coded array role-checks injected across all backend structural endpoint files making URL-bypass attempts impossible.
+## Core Features
 
-### 2. Advanced Role-Based Access Control (RBAC)
-*   **Secure Routing:** Restricts directory and file access based on 4 distinct roles: **Admin, Teacher, Staff, and Parent**.
-*   **Dynamic UI:** Sidebar menus and features dynamically adapt depending on the active user session.
-*   **Demo Mode:** Pre-seeded demo credentials provided straight on the login page for rapid role-testing.
+- Authentication with session-based access control.
+- RBAC for five roles: admin, teacher, staff, parent, student.
+- CSRF protection for POST requests across authenticated pages.
+- Student, staff, class, attendance, exam, and result modules.
+- Fee ledger with pending, paid, and partial payment tracking.
+- Fee receipt generation and payment collection workflow.
+- Transport routes and transport assignments.
+- Hostel rooms and hostel allocation management.
+- Notice publishing with dashboard alerts.
+- Public account request flow with admin approval and role assignment.
+- Parent-to-student linking for parent-scoped visibility in attendance/results/fees/transport/hostel views.
+- Admin system settings for school profile (name, logo, address, phone, academic year).
 
-### 2. Modern UI/UX Overhaul
-*   **Frontend Technologies:** Upgraded global interface to **Bootstrap 5** and **Google Fonts (Nunito)**.
-*   **SaaS-style Dashboards:** Clean, modern card layouts featuring float animations and gradient overlays.
-*   **Live Charts (Chart.js):** Integrated interactive data telemetry right on the main dashboard.
-*   **DataTables Pipeline:** Integrated **jQuery DataTables** for all list views (Students, Classes, Staff), establishing instant asynchronous search, pagination, and multi-format document exporting (CSV/Excel/PDF).
+## Role Access Snapshot
 
-### 3. System Settings Module
-*   **Database Integrated Vars:** Avoids hardcoding configurations into PHP files.
-*   **Admin Control Panel:** Allows Admins to directly update the **School Name, Logo, Address, Phone, and Academic Year** from the UI. Changes immediately broadcast to the navigation, page headers, cutouts, and browser tabs.
+| Role | Main Access |
+|------|-------------|
+| admin | Full access to all modules, settings, notices, user onboarding |
+| teacher | students, classes, attendance, exams, results |
+| staff | transport, hostel |
+| parent | fees, attendance, results, transport, hostel (linked students only) |
+| student | fees, attendance, results, exams, transport, hostel (own data) |
 
-### 4. Noticeboard / Broadcasting Portal
-*   **Notice Management:** Allows administration to draft system-wide announcements, circulars, and rules.
-*   **Dashboard Alerts:** Pushes color-coded, severity-tiered alerts (Info, Warning, Danger, Success) directly to the top of the main Dashboard where every logged-in user is forced to see them.
+## Current Project Layout
 
-### 5. Classes Management (Tamil Nadu Curriculum Tailored)
-*   **Curriculum Mapping:** Restructured classroom taxonomy strictly mapping to the TN State Board/Samacheer structure.
-*   **Preloaded Base:** Automatically configured with **35 unique classrooms**, starting from Pre-KG, traversing through secondary grades, and containing specialized branches for +1 and +2 (e.g., `Bio-Maths`, `CS-Maths`, `Commerce`, `Vocational`). Includes `Tamil Medium` classifications.
-*   **Class Teachers:** Native relationship fields linking existing employee accounts as the designated "Class Teacher".
+```text
+SchoolMS/
+|-- dashboard.php
+|-- login.php
+|-- logout.php
+|-- profile.php
+|-- request_account.php
+|-- patch_endpoints.php
+|-- attendance/
+|-- classes/
+|-- config/
+|-- database/
+|   |-- schema.sql
+|   `-- patches/
+|-- docs/
+|-- exams/
+|-- fees/
+|-- hostel/
+|-- includes/
+|-- notices/
+|-- public/
+|   `-- css/
+|-- results/
+|-- settings/
+|-- src/
+|   |-- utilities/
+|   `-- views/
+|-- staff/
+|-- students/
+|-- tests/
+|-- transport/
+|-- uploads/
+|-- .env.example
+`-- QUICK_REFERENCE.md
+```
 
-## 🛠️ Technology Stack
-*   **Backend:** PHP 8+ (Core)
-*   **Database:** MySQL / MariaDB
-*   **Frontend:** HTML5, CSS3, JavaScript
-*   **Libraries:** Bootstrap 5, FontAwesome 6, Chart.js, DataTables 1.13
+## Database and Migration Notes
+
+- Main schema: `database/schema.sql`
+- Primary tables: users, account_requests, classes, students, parent_student_links, staff, attendance, fees, exams, results, transport, transport_assignments, hostel_rooms, hostel_assignments, notices, system_settings.
+- Incremental patches in `database/patches/`:
+	- `001_account_requests.sql`
+	- `002_add_deleted_status.sql`
+	- `003_add_student_role.sql`
+	- `004_fees_paid_amount.sql`
+	- `005_parent_student_links.sql`
+
+## Quick Start
+
+1. Create database and import schema.
+2. Configure runtime environment variables (`DB_HOST`, `DB_USER`, `DB_PASS`, `DB_NAME`, `BASE_URL`).
+3. Ensure writable directories: `logs/` and `uploads/`.
+4. Open `login.php` in your browser.
+5. Sign in with default admin credentials and rotate password immediately.
+
+Default admin credentials:
+
+- Username: `admin`
+- Password: `admin123`
+
+## Important Routes
+
+- Login: `/SchoolMS/login.php`
+- Dashboard: `/SchoolMS/dashboard.php`
+- Public account request: `/SchoolMS/request_account.php`
+- Settings: `/SchoolMS/settings/index.php`
+- Account requests: `/SchoolMS/settings/account_requests.php`
+- Parent links: `/SchoolMS/settings/parent_links.php`
+
+## Documentation Index
+
+- Setup guide: `docs/SETUP.md`
+- Project structure: `docs/PROJECT_STRUCTURE.md`
+- Quick reference: `QUICK_REFERENCE.md`
+- Testing notes: `tests/README.md`
+- ER diagram: `docs/er/chen_notation_er_diagram.md`
+
+## Security Baseline
+
+- Session and RBAC checks are enforced in shared include flow.
+- CSRF token generation and POST validation are enabled.
+- SQL queries use prepared statements in module pages.
+- Passwords are hashed with PHP password APIs.
+
+## Notes
+
+- `patch_endpoints.php` is a CLI helper used to inject role checks into endpoint files and is not a web endpoint.
+- The login screen does not allow self-registration; account creation is admin-controlled via request approval.

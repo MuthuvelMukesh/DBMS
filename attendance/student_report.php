@@ -1,5 +1,5 @@
 <?php
-require_once '../header.php';
+require_once dirname(__DIR__) . '/includes/header.php';
 
 // Initialize defaults to avoid undefined variable notices.
 $student_info = null;
@@ -189,7 +189,7 @@ if ($selected_student > 0) {
             $bg_color = ($percentage >= 75) ? 'success' : (($percentage >= 50) ? 'warning' : 'danger');
             ?>
             <div class="progress" style="height: 2rem;">
-                <div class="progress-bar bg-<?php echo $bg_color; ?>" style="width: <?php echo $percentage; ?>%; font-size: 1rem;" role="progressbar">
+                <div class="progress-bar bg-<?php echo $bg_color; ?>" style="width: <?php echo $percentage; ?>%; font-size: 1rem;" role="progressbar" aria-label="Attendance percentage for <?php echo htmlspecialchars($student_info['full_name']); ?>" aria-valuenow="<?php echo (int) round($percentage); ?>" aria-valuemin="0" aria-valuemax="100">
                     <?php echo $percentage; ?>%
                 </div>
             </div>
@@ -200,6 +200,7 @@ if ($selected_student > 0) {
         <?php if (!empty($attendance_records)): ?>
         <div class="table-responsive">
             <table class="table table-sm table-hover">
+                <caption class="visually-hidden">Daily attendance records for selected month</caption>
                 <thead class="table-light">
                     <tr>
                         <th>Date</th>
@@ -236,4 +237,4 @@ if ($selected_student > 0) {
     </div>
 </div>
 
-<?php require_once '../footer.php'; ?>
+<?php require_once dirname(__DIR__) . '/includes/footer.php'; ?>

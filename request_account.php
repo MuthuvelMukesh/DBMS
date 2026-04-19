@@ -2,7 +2,7 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-require_once 'dbconfig.php';
+require_once __DIR__ . '/config/database.php';
 
 if (isset($_SESSION['user_id'])) {
     header('Location: ' . BASE_URL . 'dashboard.php');
@@ -208,33 +208,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && empty($error)) {
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label class="form-label" for="full_name">Full Name</label>
-                    <input type="text" class="form-control" id="full_name" name="full_name" maxlength="100" value="<?php echo htmlspecialchars($full_name); ?>" required>
+                    <input type="text" class="form-control" id="full_name" name="full_name" autocomplete="name" maxlength="100" value="<?php echo htmlspecialchars($full_name); ?>" required>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label class="form-label" for="username">Username</label>
-                    <input type="text" class="form-control" id="username" name="username" maxlength="50" value="<?php echo htmlspecialchars($username); ?>" required>
+                    <input type="text" class="form-control" id="username" name="username" autocomplete="username" maxlength="50" value="<?php echo htmlspecialchars($username); ?>" required>
                 </div>
             </div>
 
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label class="form-label" for="email">Email (Optional)</label>
-                    <input type="email" class="form-control" id="email" name="email" maxlength="100" value="<?php echo htmlspecialchars($email); ?>">
+                    <input type="email" class="form-control" id="email" name="email" autocomplete="email" maxlength="100" value="<?php echo htmlspecialchars($email); ?>">
                 </div>
                 <div class="col-md-6 mb-3">
                     <label class="form-label" for="phone">Phone (Optional)</label>
-                    <input type="text" class="form-control" id="phone" name="phone" maxlength="20" value="<?php echo htmlspecialchars($phone); ?>">
+                    <input type="tel" class="form-control" id="phone" name="phone" autocomplete="tel" maxlength="20" value="<?php echo htmlspecialchars($phone); ?>">
                 </div>
             </div>
 
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label class="form-label" for="password">Password</label>
-                    <input type="password" class="form-control" id="password" name="password" minlength="6" required>
+                    <input type="password" class="form-control" id="password" name="password" autocomplete="new-password" minlength="6" required>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label class="form-label" for="confirm_password">Confirm Password</label>
-                    <input type="password" class="form-control" id="confirm_password" name="confirm_password" minlength="6" required>
+                    <input type="password" class="form-control" id="confirm_password" name="confirm_password" autocomplete="new-password" minlength="6" required>
                 </div>
             </div>
 

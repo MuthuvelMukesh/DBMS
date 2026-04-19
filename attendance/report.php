@@ -1,5 +1,5 @@
 <?php
-require_once '../header.php';
+require_once dirname(__DIR__) . '/includes/header.php';
 if (!in_array($role, ['admin', 'teacher'])) {
     header('Location: ' . BASE_URL . 'dashboard.php?error=Access Denied');
     exit();
@@ -114,6 +114,7 @@ if ($selected_class > 0) {
         <?php if (!empty($attendance_data)): ?>
         <div class="table-responsive">
             <table class="table table-hover">
+                <caption class="visually-hidden">Monthly attendance summary by student</caption>
                 <thead class="table-light">
                     <tr>
                         <th>Admission No</th>
@@ -148,7 +149,7 @@ if ($selected_class > 0) {
                             <td>
                                 <div class="progress" style="height: 1.5rem;">
                                     <div class="progress-bar bg-<?php echo ($record['percentage'] >= 75) ? 'success' : (($record['percentage'] >= 50) ? 'warning' : 'danger'); ?>" 
-                                         style="width: <?php echo $record['percentage']; ?>%" role="progressbar">
+                                         style="width: <?php echo $record['percentage']; ?>%" role="progressbar" aria-label="Attendance percentage for <?php echo htmlspecialchars($record['full_name']); ?>" aria-valuenow="<?php echo (int) round($record['percentage']); ?>" aria-valuemin="0" aria-valuemax="100">
                                         <?php echo $record['percentage']; ?>%
                                     </div>
                                 </div>
@@ -179,4 +180,4 @@ if ($selected_class > 0) {
     </div>
 </div>
 
-<?php require_once '../footer.php'; ?>
+<?php require_once dirname(__DIR__) . '/includes/footer.php'; ?>

@@ -1,5 +1,5 @@
 <?php
-require_once '../header.php';
+require_once dirname(__DIR__) . '/includes/header.php';
 
 $error = '';
 $success = '';
@@ -151,6 +151,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
         <div class="table-responsive">
             <table class="table table-hover">
+                <caption class="visually-hidden">Active transport assignments showing route, student, and pickup stop details</caption>
                 <thead class="table-light">
                     <tr>
                         <th>Route Name</th>
@@ -186,11 +187,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                                 </td>
                                 <?php if (in_array($role, ['admin', 'staff'], true)): ?>
                                 <td>
-                                    <form method="POST" style="display: inline;">
+                                    <form method="POST" style="display: inline;" data-confirm="Remove <?php echo htmlspecialchars($assignment['full_name']); ?> from this route?">
                                         <input type="hidden" name="action" value="remove">
                                         <input type="hidden" name="assignment_id" value="<?php echo $assignment['id']; ?>">
-                                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to remove this student from the route?');">
-                                            <i class="fas fa-trash"></i> Remove
+                                        <button type="submit" class="btn btn-danger btn-sm" aria-label="Remove <?php echo htmlspecialchars($assignment['full_name']); ?> from route <?php echo htmlspecialchars($assignment['route_name']); ?>">
+                                            <i class="fas fa-trash" aria-hidden="true"></i> Remove
                                         </button>
                                     </form>
                                 </td>
@@ -222,4 +223,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     </div>
 </div>
 
-<?php require_once '../footer.php'; ?>
+<?php require_once dirname(__DIR__) . '/includes/footer.php'; ?>

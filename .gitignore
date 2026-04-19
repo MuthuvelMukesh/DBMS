@@ -1,0 +1,69 @@
+# Operating System
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.code-workspace
+
+# Dependencies
+/vendor/
+node_modules/
+package-lock.json
+yarn.lock
+
+# Environment Configuration
+.env
+.env.local
+.env.*.local
+
+# Logs
+/logs/
+*.log
+
+# User Test Files
+*.cookie
+parent_test.cookie
+qa_admin.cookie
+qa_parent.cookie
+qa_staff.cookie
+qa_teacher.cookie
+student_smoke.cookie
+test_admin.cookie
+test_parent.cookie
+test_staff.cookie
+test_teacher.cookie
+
+# Uploads (Keep directory, ignore files)
+/uploads/*
+!/uploads/.gitkeep
+
+# Temporary Files
+*.tmp
+*.temp
+.tmp/
+
+# Build artifacts
+/dist/
+/build/
+*.min.js
+*.min.css
+
+# Database backups
+*.sql.bak
+*.sql.backup
+
+# OS specific
+.DS_Store
+ehthumbs.db
+Desktop.ini
+
+# IDE Cache
+.phpcs.xml.dist
+.editorconfig

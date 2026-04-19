@@ -1,5 +1,5 @@
 <?php
-require_once '../header.php';
+require_once dirname(__DIR__) . '/includes/header.php';
 
 if (!in_array($role, ['admin', 'staff'])) {
     header('Location: ' . BASE_URL . 'dashboard.php?error=Access Denied');
@@ -103,6 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
         <div class="table-responsive">
             <table class="table table-hover">
+                <caption class="visually-hidden">Hostel rooms with occupancy and monthly fee details</caption>
                 <thead class="table-light">
                     <tr>
                         <th>Room No</th>
@@ -133,7 +134,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                                 </td>
                                 <td>
                                     <div class="progress" style="height: 20px;">
-                                        <div class="progress-bar bg-<?php echo $badge_color; ?>" style="width: <?php echo min($occupancy_percent, 100); ?>%;">
+                                        <div class="progress-bar bg-<?php echo $badge_color; ?>" style="width: <?php echo min($occupancy_percent, 100); ?>%;" role="progressbar" aria-label="Occupancy for room <?php echo htmlspecialchars($room['room_no']); ?>" aria-valuenow="<?php echo (int) round($occupancy_percent); ?>" aria-valuemin="0" aria-valuemax="100">
                                             <?php echo number_format($occupancy_percent, 0); ?>%
                                         </div>
                                     </div>
@@ -213,4 +214,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     </nav>
 <?php endif; ?>
 
-<?php require_once '../footer.php'; ?>
+<?php require_once dirname(__DIR__) . '/includes/footer.php'; ?>

@@ -1,5 +1,5 @@
 <?php
-require_once '../header.php';
+require_once dirname(__DIR__) . '/includes/header.php';
 
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $class_filter = isset($_GET['class']) ? (int)$_GET['class'] : '';
@@ -131,6 +131,7 @@ $stmt->close();
 
         <div class="table-responsive">
             <table class="table table-hover">
+                <caption class="visually-hidden">Exam schedule and status list</caption>
                 <thead class="table-light">
                     <tr>
                         <th>Exam Name</th>
@@ -205,4 +206,4 @@ $stmt->close();
     </div>
 </div>
 
-<?php require_once '../footer.php'; ?>
+<?php require_once dirname(__DIR__) . '/includes/footer.php'; ?>

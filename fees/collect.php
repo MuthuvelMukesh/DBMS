@@ -1,5 +1,5 @@
 <?php
-require_once '../header.php';
+require_once dirname(__DIR__) . '/includes/header.php';
 if (!in_array($role, ['admin'])) {
     header('Location: ' . BASE_URL . 'dashboard.php?error=Access Denied');
     exit();
@@ -12,7 +12,7 @@ $schema_notice = '';
 $fee_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
 if ($fee_id == 0) {
-    header("Location: list.php");
+    header("Location: list.php?collect=1");
     exit();
 }
 
@@ -31,7 +31,7 @@ $has_paid_amount = isset($fees_columns['paid_amount']);
 $has_receipt_no = isset($fees_columns['receipt_no']);
 
 if (!$has_paid_amount) {
-    $schema_notice = 'Legacy fees schema detected. Run db_patch_fees_paid_amount.sql to enable partial payment tracking.';
+    $schema_notice = 'Legacy fees schema detected. Run database/patches/004_fees_paid_amount.sql to enable partial payment tracking.';
 }
 
 $paid_amount_select = $has_paid_amount
@@ -72,7 +72,7 @@ if ($error === '') {
 
 if (!$fee) {
     if ($error === '') {
-        header("Location: list.php");
+        header("Location: list.php?collect=1");
         exit();
     }
 
@@ -83,7 +83,7 @@ if (!$fee) {
     </div>
     <a href="list.php" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back</a>
     <?php
-    require_once '../footer.php';
+    require_once dirname(__DIR__) . '/includes/footer.php';
     exit();
 }
 
@@ -101,7 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif ($payment_amount <= 0) {
         $error = 'Payment amount must be greater than 0!';
     } elseif (!$has_paid_amount && $payment_amount < (float) $fee['amount']) {
-        $error = 'Partial payments require the paid_amount column. Please run db_patch_fees_paid_amount.sql first.';
+        $error = 'Partial payments require the paid_amount column. Please run database/patches/004_fees_paid_amount.sql first.';
     } else if ($payment_amount > $remaining_amount) {
         $error = 'Payment amount cannot exceed the remaining due amount!';
     } else {
@@ -202,7 +202,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php if (!empty($success)): ?>
             <div class="alert alert-success alert-dismissible fade show" role="alert">
                 <i class="fas fa-check-circle"></i> <?php echo htmlspecialchars($success); ?>
-                <a href="receipt.php?id=<?php echo $fee_id; ?>" class="btn btn-sm btn-info ms-2" target="_blank">View Receipt</a>
+                <a href="receipt.php?id=<?php echo $fee_id; ?>" class="btn btn-sm btn-info ms-2" target="_blank" rel="noopener noreferrer">View Receipt</a>
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         <?php endif; ?>
@@ -241,7 +241,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
 
         <?php if ($fee['payment_status'] != 'Paid'): ?>
-        <form method="POST">
+        <form method="POST" data-confirm="Collect Rs <?php echo number_format($remaining_amount, 2); ?> for <?php echo htmlspecialchars($fee['full_name']); ?>?">
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label for="payment_amount" class="form-label">Payment Amount *</label>
@@ -268,4 +268,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 </div>
 
-<?php require_once '../footer.php'; ?>
+<?php require_once dirname(__DIR__) . '/includes/footer.php'; ?>

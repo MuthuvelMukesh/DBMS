@@ -1,5 +1,5 @@
 <?php
-require_once '../header.php';
+require_once dirname(__DIR__) . '/includes/header.php';
 
 if (!in_array($role, ['admin', 'staff'])) {
     header('Location: ' . BASE_URL . 'dashboard.php?error=Access Denied');
@@ -11,6 +11,7 @@ $error = '';
 $success = '';
 $students = [];
 $rooms = [];
+$can_assign = false;
 
 // Fetch all active students not already assigned to hostel
 $stmt = $conn->prepare("
@@ -114,6 +115,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         }
     }
 }
+
+$can_assign = !empty($students) && !empty($rooms);
 ?>
 
 <h1 class="page-title"><i class="fas fa-tasks"></i> Assign Students to Hostel</h1>
@@ -134,13 +137,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             </div>
         <?php endif; ?>
 
-        <form method="POST">
+        <?php if (empty($students) || empty($rooms)): ?>
+            <div class="alert alert-info" role="alert">
+                <i class="fas fa-info-circle"></i>
+                <?php if (empty($students) && empty($rooms)): ?>
+                    No eligible students and no available rooms found for assignment.
+                <?php elseif (empty($students)): ?>
+                    No eligible students found. All active students may already be assigned.
+                <?php else: ?>
+                    No available rooms found. Add rooms or vacate existing assignments first.
+                <?php endif; ?>
+            </div>
+        <?php endif; ?>
+
+        <form method="POST" data-confirm="Assign the selected student to this hostel room?">
             <input type="hidden" name="action" value="assign">
             
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label for="student_id" class="form-label">Select Student *</label>
-                    <select class="form-control" id="student_id" name="student_id" required>
+                    <select class="form-select" id="student_id" name="student_id" required>
                         <option value="">-- Choose Student --</option>
                         <?php foreach ($students as $student): ?>
                             <option value="<?php echo $student['id']; ?>">
@@ -152,7 +168,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
                 <div class="col-md-6 mb-3">
                     <label for="room_id" class="form-label">Select Room *</label>
-                    <select class="form-control" id="room_id" name="room_id" required>
+                    <select class="form-select" id="room_id" name="room_id" required>
                         <option value="">-- Choose Room --</option>
                         <?php foreach ($rooms as $room): ?>
                             <option value="<?php echo $room['id']; ?>">
@@ -170,10 +186,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 </div>
             </div>
 
-            <button type="submit" class="btn btn-primary"><i class="fas fa-check"></i> Assign Student</button>
+            <button type="submit" class="btn btn-primary" <?php echo $can_assign ? '' : 'disabled'; ?>><i class="fas fa-check"></i> Assign Student</button>
             <a href="list.php" class="btn btn-secondary"><i class="fas fa-list"></i> View Assignments</a>
         </form>
     </div>
 </div>
 
-<?php require_once '../footer.php'; ?>
+<?php require_once dirname(__DIR__) . '/includes/footer.php'; ?>

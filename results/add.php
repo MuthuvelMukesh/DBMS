@@ -1,5 +1,5 @@
 <?php
-require_once '../header.php';
+require_once dirname(__DIR__) . '/includes/header.php';
 if (!in_array($role, ['admin', 'teacher'])) {
     header('Location: ' . BASE_URL . 'dashboard.php?error=Access Denied');
     exit();
@@ -150,9 +150,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </select>
         </form>
 
+        <?php if (empty($exams)): ?>
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> No exams available. Please create an exam first.
+        </div>
+        <?php endif; ?>
+
         <?php if (!empty($students) && $exam_info): ?>
         <hr>
-        <form method="POST" action="">
+        <form method="POST" action="" data-confirm="Save and overwrite results for this exam?">
             <input type="hidden" name="exam_id" value="<?php echo htmlspecialchars($selected_exam); ?>">
 
             <div class="alert alert-info">
@@ -162,6 +168,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <div class="table-responsive">
                 <table class="table table-hover">
+                    <caption class="visually-hidden">Students and marks entry form for selected exam</caption>
                     <thead class="table-light">
                         <tr>
                             <th>Admission No</th>
@@ -175,7 +182,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <td><strong><?php echo htmlspecialchars($student['admission_no']); ?></strong></td>
                                 <td><?php echo htmlspecialchars($student['full_name']); ?></td>
                                 <td>
-                                    <input type="number" class="form-control" name="marks_<?php echo $student['id']; ?>" 
+                                    <label for="marks_<?php echo (int) $student['id']; ?>" class="visually-hidden">Marks for <?php echo htmlspecialchars($student['full_name']); ?></label>
+                                    <input id="marks_<?php echo (int) $student['id']; ?>" type="number" class="form-control" name="marks_<?php echo $student['id']; ?>" 
                                            min="0" max="<?php echo $exam_info['max_marks']; ?>" placeholder="Enter marks">
                                 </td>
                             </tr>
@@ -197,4 +205,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 </div>
 
-<?php require_once '../footer.php'; ?>
+<?php require_once dirname(__DIR__) . '/includes/footer.php'; ?>

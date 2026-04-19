@@ -37,7 +37,7 @@ if (!in_array(\$role, $roles)) {
     exit();
 }
 ";
-        // Insert after require_once '../header.php';
+        // Insert after require_once dirname(__DIR__) . '/includes/header.php';
         $content = preg_replace("/(require_once\s+['\"].*?header\.php['\"];)/i", "$1\n" . $patchBlock, $content, 1, $count);
         
         if ($count > 0) {

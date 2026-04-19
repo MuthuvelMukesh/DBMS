@@ -1,5 +1,5 @@
 <?php
-require_once '../header.php';
+require_once dirname(__DIR__) . '/includes/header.php';
 
 if (!in_array($role, ['admin', 'staff'])) {
     header('Location: ' . BASE_URL . 'dashboard.php?error=Access Denied');
@@ -12,6 +12,7 @@ $success = '';
 $students = [];
 $transports = [];
 $selected_transport = null;
+$can_assign = false;
 
 // Fetch all active transports
 $stmt = $conn->prepare("SELECT id, route_name, stops FROM transport WHERE status = 'active' ORDER BY route_name");
@@ -108,6 +109,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     }
 }
 
+$can_assign = !empty($students) && !empty($transports);
+
 // Get stops for selected transport via GET (for dropdown population)
 $selected_stops = [];
 if (isset($_GET['transport_id'])) {
@@ -142,7 +145,20 @@ if (isset($_GET['transport_id'])) {
             </div>
         <?php endif; ?>
 
-        <form method="POST" id="assignForm">
+        <?php if (empty($students) || empty($transports)): ?>
+            <div class="alert alert-info" role="alert">
+                <i class="fas fa-info-circle"></i>
+                <?php if (empty($students) && empty($transports)): ?>
+                    No eligible students and no active routes found for assignment.
+                <?php elseif (empty($students)): ?>
+                    No eligible students found. All active students may already be assigned.
+                <?php else: ?>
+                    No active transport routes found. Add a route first.
+                <?php endif; ?>
+            </div>
+        <?php endif; ?>
+
+        <form method="POST" id="assignForm" data-confirm="Assign the selected student to this route and pickup stop?">
             <input type="hidden" name="action" value="assign">
             
             <div class="row">
@@ -174,7 +190,7 @@ if (isset($_GET['transport_id'])) {
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label for="pickup_stop" class="form-label">Pickup Stop *</label>
-                    <select class="form-control" id="pickup_stop" name="pickup_stop" required>
+                    <select class="form-control" id="pickup_stop" name="pickup_stop" aria-describedby="pickup_stop_help" required>
                         <option value="">-- Select Stop --</option>
                         <?php foreach ($selected_stops as $stop): ?>
                             <option value="<?php echo htmlspecialchars($stop); ?>">
@@ -182,6 +198,7 @@ if (isset($_GET['transport_id'])) {
                             </option>
                         <?php endforeach; ?>
                     </select>
+                    <div id="pickup_stop_help" class="form-text">Stops are loaded based on your selected route.</div>
                 </div>
 
                 <div class="col-md-6 mb-3">
@@ -190,7 +207,7 @@ if (isset($_GET['transport_id'])) {
                 </div>
             </div>
 
-            <button type="submit" class="btn btn-primary"><i class="fas fa-check"></i> Assign Student</button>
+            <button type="submit" class="btn btn-primary" <?php echo $can_assign ? '' : 'disabled'; ?>><i class="fas fa-check"></i> Assign Student</button>
             <a href="list.php" class="btn btn-secondary"><i class="fas fa-list"></i> View Assignments</a>
         </form>
     </div>
@@ -204,15 +221,23 @@ function loadStops(transportId) {
     }
 
     fetch('get_stops.php?transport_id=' + transportId)
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to load stops');
+            }
+            return response.json();
+        })
         .then(data => {
             let html = '<option value="">-- Select Stop --</option>';
             data.forEach(stop => {
                 html += '<option value="' + stop.trim() + '">' + stop.trim() + '</option>';
             });
             document.getElementById('pickup_stop').innerHTML = html;
+        })
+        .catch(() => {
+            document.getElementById('pickup_stop').innerHTML = '<option value="">Unable to load stops. Try again.</option>';
         });
 }
 </script>
 
-<?php require_once '../footer.php'; ?>
+<?php require_once dirname(__DIR__) . '/includes/footer.php'; ?>

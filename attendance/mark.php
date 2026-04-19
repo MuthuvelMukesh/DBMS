@@ -1,5 +1,5 @@
 <?php
-require_once '../header.php';
+require_once dirname(__DIR__) . '/includes/header.php';
 if (!in_array($role, ['admin', 'teacher'])) {
     header('Location: ' . BASE_URL . 'dashboard.php?error=Access Denied');
     exit();
@@ -143,8 +143,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <input type="hidden" name="mark_date" value="<?php echo htmlspecialchars($selected_date); ?>">
             <input type="hidden" name="class_id" value="<?php echo htmlspecialchars($selected_class); ?>">
 
+            <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between mb-3">
+                <div class="btn-group btn-group-sm" role="group" aria-label="Bulk attendance actions">
+                    <button type="button" class="btn btn-outline-success" data-set-status="Present">Mark All Present</button>
+                    <button type="button" class="btn btn-outline-danger" data-set-status="Absent">Mark All Absent</button>
+                    <button type="button" class="btn btn-outline-warning" data-set-status="Late">Mark All Late</button>
+                </div>
+                <div style="max-width: 280px; width: 100%;">
+                    <label for="attendanceSearch" class="visually-hidden">Search students</label>
+                    <input type="search" id="attendanceSearch" class="form-control form-control-sm" placeholder="Search by name or admission no">
+                </div>
+            </div>
+
             <div class="table-responsive">
                 <table class="table table-hover">
+                    <caption class="visually-hidden">Attendance entry table</caption>
                     <thead class="table-light">
                         <tr>
                             <th>Admission No</th>
@@ -154,11 +167,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </thead>
                     <tbody>
                         <?php foreach ($students as $student): ?>
-                            <tr>
+                            <tr data-student-row="true">
                                 <td><strong><?php echo htmlspecialchars($student['admission_no']); ?></strong></td>
                                 <td><?php echo htmlspecialchars($student['full_name']); ?></td>
                                 <td>
-                                    <select class="form-select" name="attendance_<?php echo $student['id']; ?>">
+                                    <select class="form-select attendance-status-select" name="attendance_<?php echo $student['id']; ?>" aria-label="Attendance for <?php echo htmlspecialchars($student['full_name']); ?>">
                                         <option value="Present" <?php echo (isset($existing_attendance[$student['id']]) && $existing_attendance[$student['id']] == 'Present') ? 'selected' : ''; ?>>Present</option>
                                         <option value="Absent" <?php echo (isset($existing_attendance[$student['id']]) && $existing_attendance[$student['id']] == 'Absent') ? 'selected' : ''; ?>>Absent</option>
                                         <option value="Late" <?php echo (isset($existing_attendance[$student['id']]) && $existing_attendance[$student['id']] == 'Late') ? 'selected' : ''; ?>>Late</option>
@@ -182,4 +195,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 </div>
 
-<?php require_once '../footer.php'; ?>
+<?php if (!empty($students)): ?>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const statusButtons = document.querySelectorAll('[data-set-status]');
+    const statusSelects = document.querySelectorAll('.attendance-status-select');
+    const searchInput = document.getElementById('attendanceSearch');
+
+    statusButtons.forEach(function(button) {
+        button.addEventListener('click', function() {
+            const status = button.getAttribute('data-set-status');
+            statusSelects.forEach(function(select) {
+                select.value = status;
+            });
+        });
+    });
+
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            const term = searchInput.value.trim().toLowerCase();
+            document.querySelectorAll('tr[data-student-row="true"]').forEach(function(row) {
+                const text = row.textContent.toLowerCase();
+                row.style.display = term === '' || text.indexOf(term) !== -1 ? '' : 'none';
+            });
+        });
+    }
+});
+</script>
+<?php endif; ?>
+
+<?php require_once dirname(__DIR__) . '/includes/footer.php'; ?>

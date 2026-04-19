@@ -1,7 +1,41 @@
 <?php
-require_once 'header.php';
+require_once __DIR__ . '/includes/header.php';
 
 $is_admin_or_teacher = in_array($role ?? ($_SESSION['role'] ?? ''), ['admin', 'teacher'], true);
+$quick_report_url = $is_admin_or_teacher ? 'results/report.php' : 'attendance/student_report.php';
+$quick_report_label = $is_admin_or_teacher ? 'Results Report' : 'My Attendance';
+
+$quick_actions = [];
+if ($role === 'admin') {
+    $quick_actions = [
+        ['label' => 'Add Student', 'icon' => 'fa-user-plus', 'url' => 'students/add.php', 'desc' => 'Create admission and profile quickly.'],
+        ['label' => 'Collect Fees', 'icon' => 'fa-money-bill-wave', 'url' => 'fees/list.php', 'desc' => 'Review pending dues and collect payments.'],
+        ['label' => 'Review Requests', 'icon' => 'fa-user-check', 'url' => 'settings/account_requests.php', 'desc' => 'Approve or reject account requests.'],
+    ];
+} elseif ($role === 'teacher') {
+    $quick_actions = [
+        ['label' => 'Mark Attendance', 'icon' => 'fa-clipboard-list', 'url' => 'attendance/mark.php', 'desc' => 'Complete today\'s attendance in one pass.'],
+        ['label' => 'Enter Results', 'icon' => 'fa-edit', 'url' => 'results/add.php', 'desc' => 'Add marks and grades for scheduled exams.'],
+        ['label' => 'View Classes', 'icon' => 'fa-chalkboard', 'url' => 'classes/list.php', 'desc' => 'Review classes and assigned teachers.'],
+    ];
+} elseif ($role === 'staff') {
+    $quick_actions = [
+        ['label' => 'Route Assignments', 'icon' => 'fa-bus', 'url' => 'transport/list.php', 'desc' => 'Track active transport allocations.'],
+        ['label' => 'Hostel Allocations', 'icon' => 'fa-bed', 'url' => 'hostel/list.php', 'desc' => 'Review room occupancy and assignments.'],
+    ];
+} elseif ($role === 'parent') {
+    $quick_actions = [
+        ['label' => 'Fee Ledger', 'icon' => 'fa-money-check-alt', 'url' => 'fees/list.php', 'desc' => 'Check dues, receipts, and payment status.'],
+        ['label' => 'Attendance History', 'icon' => 'fa-calendar-check', 'url' => 'attendance/student_report.php', 'desc' => 'Monitor your child\'s attendance trend.'],
+        ['label' => 'Results Report', 'icon' => 'fa-chart-column', 'url' => 'results/report.php', 'desc' => 'View exam performance and progress.'],
+    ];
+} else {
+    $quick_actions = [
+        ['label' => 'My Attendance', 'icon' => 'fa-calendar-check', 'url' => 'attendance/student_report.php', 'desc' => 'Review recent attendance records.'],
+        ['label' => 'My Results', 'icon' => 'fa-chart-line', 'url' => 'results/report.php', 'desc' => 'Track marks, grades, and pass status.'],
+        ['label' => 'My Fees', 'icon' => 'fa-file-invoice', 'url' => 'fees/list.php', 'desc' => 'Check pending and completed fee payments.'],
+    ];
+}
 
 // Get total students
 $stmt = $conn->prepare("SELECT COUNT(*) as total FROM students WHERE status = 'active'");
@@ -90,8 +124,32 @@ $noticeResult = $conn->query("SELECT * FROM notices WHERE is_active = 1 ORDER BY
 
 <div class="d-sm-flex align-items-center justify-content-between mb-4 mt-2">
     <h1 class="page-title mb-0"><i class="fas fa-chart-line text-primary"></i> Dashboard</h1>
-    <a href="#" class="btn btn-sm btn-primary shadow-sm"><i class="fas fa-download fa-sm text-white-50"></i> Generate Report</a>
+    <a href="<?php echo htmlspecialchars($quick_report_url); ?>" class="btn btn-sm btn-primary shadow-sm"><i class="fas fa-file-alt fa-sm text-white-50"></i> <?php echo htmlspecialchars($quick_report_label); ?></a>
 </div>
+
+<?php if (!empty($quick_actions)): ?>
+<section class="mb-4" aria-label="Quick start actions">
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+                <h2 class="h5 mb-0">Start Here</h2>
+                <span class="badge bg-light text-dark">Role: <?php echo htmlspecialchars(ucfirst($role)); ?></span>
+            </div>
+            <div class="row g-3">
+                <?php foreach ($quick_actions as $action): ?>
+                <div class="col-md-6 col-xl-4">
+                    <a href="<?php echo htmlspecialchars($action['url']); ?>" class="quick-action-card text-decoration-none d-block h-100">
+                        <div class="quick-action-icon"><i class="fas <?php echo htmlspecialchars($action['icon']); ?>" aria-hidden="true"></i></div>
+                        <h3 class="h6 mb-1 text-dark"><?php echo htmlspecialchars($action['label']); ?></h3>
+                        <p class="mb-0 text-muted small"><?php echo htmlspecialchars($action['desc']); ?></p>
+                    </a>
+                </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    </div>
+</section>
+<?php endif; ?>
 
 <!-- Noticeboard Alerts -->
 <?php if($noticeResult && $noticeResult->num_rows > 0): ?>
@@ -153,7 +211,7 @@ $noticeResult = $conn->query("SELECT * FROM notices WHERE is_active = 1 ORDER BY
 
     <!-- Pending Fees Card -->
     <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card bg-warning text-white shadow-sm h-100 py-2">
+        <div class="card bg-warning text-dark shadow-sm h-100 py-2">
             <div class="card-body">
                 <div class="row g-0 align-items-center">
                     <div class="col me-2">
@@ -165,7 +223,7 @@ $noticeResult = $conn->query("SELECT * FROM notices WHERE is_active = 1 ORDER BY
                     </div>
                 </div>
             </div>
-            <a href="fees/list.php" class="card-footer bg-transparent border-0 text-white text-center pb-2 pt-0 text-decoration-none" style="font-size:0.85rem; font-weight:600; opacity: 0.9;">View Details <i class="fas fa-arrow-right ms-1"></i></a>
+            <a href="fees/list.php" class="card-footer bg-transparent border-0 text-dark text-center pb-2 pt-0 text-decoration-none" style="font-size:0.85rem; font-weight:600; opacity: 0.9;">View Details <i class="fas fa-arrow-right ms-1"></i></a>
         </div>
     </div>
 
@@ -321,4 +379,4 @@ document.addEventListener("DOMContentLoaded", function() {
 </script>
 <?php endif; ?>
 
-<?php require_once 'footer.php'; ?>
+<?php require_once __DIR__ . '/includes/footer.php'; ?>

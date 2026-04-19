@@ -1,5 +1,5 @@
 <?php
-require_once '../header.php';
+require_once dirname(__DIR__) . '/includes/header.php';
 
 if (!in_array($role, ['admin', 'teacher'])) {
     header('Location: ' . BASE_URL . 'dashboard.php?error=Access Denied');
@@ -317,6 +317,7 @@ $stmt->close();
             </div>
             <div class="table-responsive">
                 <table class="table table-hover mb-0">
+                    <caption class="visually-hidden">Recent exam results for this student</caption>
                     <thead class="table-light">
                         <tr>
                             <th>Exam Name</th>
@@ -338,8 +339,19 @@ $stmt->close();
                 </table>
             </div>
         </div>
+        <?php else: ?>
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-light border-bottom">
+                <h5 class="mb-0"><i class="fas fa-chart-bar"></i> Recent Results (Last 5 Exams)</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info mb-0" role="alert">
+                    <i class="fas fa-info-circle"></i> No recent exam results found for this student.
+                </div>
+            </div>
+        </div>
         <?php endif; ?>
     </div>
 </div>
 
-<?php require_once '../footer.php'; ?>
+<?php require_once dirname(__DIR__) . '/includes/footer.php'; ?>

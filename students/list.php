@@ -1,5 +1,5 @@
 <?php
-require_once '../header.php';
+require_once dirname(__DIR__) . '/includes/header.php';
 
 // Just fetch all students and let DataTables handle searching and pagination
 $query = "SELECT s.id, s.admission_no, s.full_name, s.dob, s.gender, s.parent_name, s.contact, s.status, 
@@ -27,6 +27,7 @@ $students = $result->fetch_all(MYSQLI_ASSOC);
         <div class="table-responsive">
             <!-- Added 'datatable' class here for automatic pagination, search, and export buttons -->
             <table class="table table-hover datatable align-middle">
+                <caption class="visually-hidden">Student directory and actions</caption>
                 <thead class="table-light">
                     <tr>
                         <th>Admission No</th>
@@ -78,10 +79,10 @@ $students = $result->fetch_all(MYSQLI_ASSOC);
                                 <?php if (in_array($role, ['admin', 'teacher'])): ?>
                                 <td class="text-end">
                                     <div class="btn-group btn-group-sm">
-                                        <a href="view.php?id=<?php echo $student['id']; ?>" class="btn btn-outline-info" title="View"><i class="fas fa-eye"></i></a>
-                                        <a href="edit.php?id=<?php echo $student['id']; ?>" class="btn btn-outline-primary" title="Edit"><i class="fas fa-edit"></i></a>
+                                        <a href="view.php?id=<?php echo $student['id']; ?>" class="btn btn-outline-info" title="View" aria-label="View student <?php echo htmlspecialchars($student['full_name']); ?>"><i class="fas fa-eye" aria-hidden="true"></i></a>
+                                        <a href="edit.php?id=<?php echo $student['id']; ?>" class="btn btn-outline-primary" title="Edit" aria-label="Edit student <?php echo htmlspecialchars($student['full_name']); ?>"><i class="fas fa-edit" aria-hidden="true"></i></a>
                                         <?php if ($role === 'admin'): ?>
-                                        <a href="delete.php?id=<?php echo $student['id']; ?>" class="btn btn-outline-danger" title="Delete" onclick="return confirm('Are you sure you want to delete this student?');"><i class="fas fa-trash"></i></a>
+                                        <a href="delete.php?id=<?php echo $student['id']; ?>" class="btn btn-outline-danger" title="Delete" aria-label="Delete student <?php echo htmlspecialchars($student['full_name']); ?>" data-confirm="Delete this student record?"><i class="fas fa-trash" aria-hidden="true"></i></a>
                                         <?php endif; ?>
                                     </div>
                                 </td>
@@ -95,4 +96,4 @@ $students = $result->fetch_all(MYSQLI_ASSOC);
     </div>
 </div>
 
-<?php require_once '../footer.php'; ?>
+<?php require_once dirname(__DIR__) . '/includes/footer.php'; ?>

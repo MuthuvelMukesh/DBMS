@@ -1,5 +1,5 @@
 <?php
-require_once '../header.php';
+require_once dirname(__DIR__) . '/includes/header.php';
 
 if ($role !== 'admin') {
     header('Location: ' . BASE_URL . 'dashboard.php?error=Access Denied');
@@ -23,6 +23,7 @@ $staff = $result->fetch_all(MYSQLI_ASSOC);
     <div class="card-body">
         <div class="table-responsive">
             <table class="table table-hover datatable align-middle">
+                <caption class="visually-hidden">Staff directory and management actions</caption>
                 <thead class="table-light">
                     <tr>
                         <th>Staff ID</th>
@@ -63,8 +64,8 @@ $staff = $result->fetch_all(MYSQLI_ASSOC);
                                 </td>
                                 <td class="text-end">
                                     <div class="btn-group btn-group-sm">
-                                        <a href="edit.php?id=<?php echo $s['id']; ?>" class="btn btn-outline-primary" title="Edit"><i class="fas fa-edit"></i></a>
-                                        <a href="delete.php?id=<?php echo $s['id']; ?>" class="btn btn-outline-danger" title="Delete" onclick="return confirm('Are you sure you want to delete this staff member?');"><i class="fas fa-trash"></i></a>
+                                        <a href="edit.php?id=<?php echo $s['id']; ?>" class="btn btn-outline-primary" title="Edit" aria-label="Edit staff member <?php echo htmlspecialchars($s['full_name']); ?>"><i class="fas fa-edit" aria-hidden="true"></i></a>
+                                        <a href="delete.php?id=<?php echo $s['id']; ?>" class="btn btn-outline-danger" title="Delete" aria-label="Delete staff member <?php echo htmlspecialchars($s['full_name']); ?>" data-confirm="Delete this staff member?"><i class="fas fa-trash" aria-hidden="true"></i></a>
                                     </div>
                                 </td>
                             </tr>
@@ -76,4 +77,4 @@ $staff = $result->fetch_all(MYSQLI_ASSOC);
     </div>
 </div>
 
-<?php require_once '../footer.php'; ?>
+<?php require_once dirname(__DIR__) . '/includes/footer.php'; ?>

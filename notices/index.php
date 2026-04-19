@@ -1,10 +1,10 @@
 <?php
-require_once dirname(__DIR__) . '/header.php';
+require_once dirname(__DIR__) . '/includes/header.php';
 
 // Check if user is admin
 if ($_SESSION['role'] !== 'admin') {
     echo "<div class='container mt-5'><div class='alert alert-danger'>Access Denied.</div></div>";
-    require_once dirname(__DIR__) . '/footer.php';
+    require_once dirname(__DIR__) . '/includes/footer.php';
     exit();
 }
 
@@ -94,6 +94,7 @@ $notices = $conn->query("SELECT * FROM notices ORDER BY created_at DESC");
         <div class="card-body">
             <div class="table-responsive">
                 <table class="table table-hover datatable align-middle">
+                    <caption class="visually-hidden">Published notices with status and management actions</caption>
                     <thead class="table-light">
                         <tr>
                             <th>Date</th>
@@ -125,13 +126,13 @@ $notices = $conn->query("SELECT * FROM notices ORDER BY created_at DESC");
                             <td>
                                 <form method="POST" class="d-inline">
                                     <input type="hidden" name="notice_id" value="<?php echo (int)$row['id']; ?>">
-                                    <button type="submit" name="toggle_notice" value="1" class="btn btn-sm btn-<?php echo $row['is_active'] ? 'warning' : 'success'; ?> me-1" title="Toggle Visibility">
+                                    <button type="submit" name="toggle_notice" value="1" class="btn btn-sm btn-<?php echo $row['is_active'] ? 'warning' : 'success'; ?> me-1" title="Toggle Visibility" aria-label="<?php echo $row['is_active'] ? 'Hide' : 'Show'; ?> notice <?php echo htmlspecialchars($row['title']); ?>">
                                         <i class="fas fa-eye<?php echo $row['is_active'] ? '-slash' : ''; ?>"></i>
                                     </button>
                                 </form>
-                                <form method="POST" class="d-inline" onsubmit="return confirm('Delete this notice permanently?');">
+                                <form method="POST" class="d-inline" data-confirm="Delete notice <?php echo htmlspecialchars($row['title']); ?> permanently?">
                                     <input type="hidden" name="notice_id" value="<?php echo (int)$row['id']; ?>">
-                                    <button type="submit" name="delete_notice" value="1" class="btn btn-sm btn-danger" title="Delete">
+                                    <button type="submit" name="delete_notice" value="1" class="btn btn-sm btn-danger" title="Delete" aria-label="Delete notice <?php echo htmlspecialchars($row['title']); ?>">
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </form>
@@ -186,4 +187,4 @@ $notices = $conn->query("SELECT * FROM notices ORDER BY created_at DESC");
     </div>
 </div>
 
-<?php require_once dirname(__DIR__) . '/footer.php'; ?>
+<?php require_once dirname(__DIR__) . '/includes/footer.php'; ?>

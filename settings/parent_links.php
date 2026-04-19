@@ -1,9 +1,9 @@
 <?php
-require_once dirname(__DIR__) . '/header.php';
+require_once dirname(__DIR__) . '/includes/header.php';
 
 if ($_SESSION['role'] !== 'admin') {
     echo "<div class='container mt-5'><div class='alert alert-danger'>Access Denied.</div></div>";
-    require_once dirname(__DIR__) . '/footer.php';
+    require_once dirname(__DIR__) . '/includes/footer.php';
     exit();
 }
 
@@ -245,6 +245,7 @@ if ($selected_parent_id > 0) {
                     <?php if (!empty($linked_students)): ?>
                         <div class="table-responsive">
                             <table class="table table-hover align-middle mb-0">
+                                <caption class="visually-hidden">Students currently linked to the selected parent account</caption>
                                 <thead>
                                     <tr>
                                         <th>Admission No</th>
@@ -262,7 +263,7 @@ if ($selected_parent_id > 0) {
                                             <td><?php echo htmlspecialchars(trim(($linked['class_name'] ?? '') . ' ' . ($linked['section'] ?? ''))); ?></td>
                                             <td><?php echo htmlspecialchars($linked['relationship'] ?: '-'); ?></td>
                                             <td>
-                                                <form method="POST" onsubmit="return confirm('Remove this parent-student link?');">
+                                                <form method="POST" data-confirm="Remove link between <?php echo htmlspecialchars($linked['full_name']); ?> and this parent?">
                                                     <input type="hidden" name="action" value="unlink">
                                                     <input type="hidden" name="link_id" value="<?php echo (int) $linked['link_id']; ?>">
                                                     <input type="hidden" name="parent_user_id" value="<?php echo $selected_parent_id; ?>">
@@ -286,4 +287,4 @@ if ($selected_parent_id > 0) {
     <?php endif; ?>
 </div>
 
-<?php require_once dirname(__DIR__) . '/footer.php'; ?>
+<?php require_once dirname(__DIR__) . '/includes/footer.php'; ?>

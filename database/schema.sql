@@ -250,29 +250,16 @@ CREATE TABLE IF NOT EXISTS notices (
     INDEX idx_status (is_active)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- System Settings table
+CREATE TABLE IF NOT EXISTS system_settings (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    setting_key VARCHAR(100) UNIQUE NOT NULL,
+    setting_value LONGTEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Insert initial admin user (password: admin123)
 INSERT INTO users (username, password, role, status) VALUES 
-('admin', '$2y$10$YPdQS80C7q9c6KJfUBt1NuCL..YzCe3gVKXCL3Y3Q8lRqZGmKqECG', 'admin', 'active');
-
--- Insert sample classes
-INSERT INTO classes (class_name, section) VALUES 
-('Class 1', 'A'),
-('Class 1', 'B'),
-('Class 2', 'A'),
-('Class 2', 'B'),
-('Class 3', 'A'),
-('Class 3', 'B'),
-('Class 4', 'A'),
-('Class 4', 'B'),
-('Class 5', 'A'),
-('Class 5', 'B'),
-('Class 6', 'A'),
-('Class 6', 'B'),
-('Class 7', 'A'),
-('Class 7', 'B'),
-('Class 8', 'A'),
-('Class 8', 'B'),
-('Class 9', 'A'),
-('Class 9', 'B'),
-('Class 10', 'A'),
-('Class 10', 'B');
+('admin', '$2y$10$YPdQS80C7q9c6KJfUBt1NuCL..YzCe3gVKXCL3Y3Q8lRqZGmKqECG', 'admin', 'active')
+ON DUPLICATE KEY UPDATE id=id;

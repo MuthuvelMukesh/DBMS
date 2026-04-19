@@ -1,5 +1,5 @@
 <?php
-require_once '../header.php';
+require_once dirname(__DIR__) . '/includes/header.php';
 
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $limit = 10;
@@ -103,6 +103,7 @@ $total_pages = ceil($total_records / $limit);
     <div class="card-body">
         <div class="table-responsive">
             <table class="table table-hover">
+                <caption class="visually-hidden">Active hostel room assignments by student</caption>
                 <thead class="table-light">
                     <tr>
                         <th>Room</th>
@@ -136,7 +137,7 @@ $total_pages = ceil($total_records / $limit);
                                 </td>
                                 <?php if (in_array($role, ['admin', 'staff'], true)): ?>
                                 <td>
-                                    <a href="vacate.php?assignment_id=<?php echo $assignment['id']; ?>" class="btn btn-warning btn-sm">
+                                    <a href="vacate.php?assignment_id=<?php echo $assignment['id']; ?>" class="btn btn-warning btn-sm" data-confirm="Vacate <?php echo htmlspecialchars($assignment['full_name']); ?> from room <?php echo htmlspecialchars($assignment['room_no']); ?>?">
                                         <i class="fas fa-sign-out-alt"></i> Vacate
                                     </a>
                                 </td>
@@ -168,4 +169,4 @@ $total_pages = ceil($total_records / $limit);
     </div>
 </div>
 
-<?php require_once '../footer.php'; ?>
+<?php require_once dirname(__DIR__) . '/includes/footer.php'; ?>

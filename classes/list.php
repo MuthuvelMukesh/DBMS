@@ -1,9 +1,9 @@
 <?php
-require_once dirname(__DIR__) . '/header.php';
+require_once dirname(__DIR__) . '/includes/header.php';
 
 if (!in_array($_SESSION['role'], ['admin', 'teacher'])) {
     echo "<div class='container mt-5'><div class='alert alert-danger'>Access Denied.</div></div>";
-    require_once dirname(__DIR__) . '/footer.php';
+    require_once dirname(__DIR__) . '/includes/footer.php';
     exit();
 }
 
@@ -115,6 +115,7 @@ $teachers = $conn->query("SELECT u.id, s.full_name, s.staff_id FROM users u INNE
         <div class="card-body">
             <div class="table-responsive">
                 <table class="table table-hover datatable align-middle w-100">
+                    <caption class="visually-hidden">Class list with teacher assignments and status actions</caption>
                     <thead class="table-light">
                         <tr>
                             <th>ID</th>
@@ -149,10 +150,10 @@ $teachers = $conn->query("SELECT u.id, s.full_name, s.staff_id FROM users u INNE
                             </td>
                             <?php if ($_SESSION['role'] === 'admin'): ?>
                             <td>
-                                <form method="POST" class="d-inline">
+                                <form method="POST" class="d-inline" data-confirm="Update status for class <?php echo htmlspecialchars($row['class_name'] . ' - ' . $row['section']); ?>?">
                                     <input type="hidden" name="class_id" value="<?php echo (int)$row['id']; ?>">
-                                    <button type="submit" name="toggle_class" value="1" class="btn btn-sm btn-<?php echo $row['status'] === 'active' ? 'warning' : 'success'; ?> me-1" title="Toggle Status">
-                                        <i class="fas fa-power-off"></i>
+                                    <button type="submit" name="toggle_class" value="1" class="btn btn-sm btn-<?php echo $row['status'] === 'active' ? 'warning' : 'success'; ?> me-1" title="Toggle Status" aria-label="Toggle class status for <?php echo htmlspecialchars($row['class_name'] . ' - ' . $row['section']); ?>">
+                                        <i class="fas fa-power-off" aria-hidden="true"></i>
                                     </button>
                                 </form>
                             </td>
@@ -210,4 +211,4 @@ $teachers = $conn->query("SELECT u.id, s.full_name, s.staff_id FROM users u INNE
 </div>
 <?php endif; ?>
 
-<?php require_once dirname(__DIR__) . '/footer.php'; ?>
+<?php require_once dirname(__DIR__) . '/includes/footer.php'; ?>

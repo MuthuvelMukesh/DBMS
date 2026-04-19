@@ -1,5 +1,5 @@
 <?php
-require_once '../header.php';
+require_once dirname(__DIR__) . '/includes/header.php';
 
 if (!in_array($role, ['admin', 'staff'])) {
     header('Location: ' . BASE_URL . 'dashboard.php?error=Access Denied');
@@ -132,7 +132,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
                     <hr>
 
-                    <form method="POST">
+                    <form method="POST" data-confirm="Confirm vacating <?php echo htmlspecialchars($assignment['full_name']); ?> from room <?php echo htmlspecialchars($assignment['room_no']); ?>?">
                         <input type="hidden" name="action" value="vacate">
                         <input type="hidden" name="assignment_id" value="<?php echo $assignment['id']; ?>">
 
@@ -166,4 +166,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     </div>
 <?php endif; ?>
 
-<?php require_once '../footer.php'; ?>
+<?php require_once dirname(__DIR__) . '/includes/footer.php'; ?>

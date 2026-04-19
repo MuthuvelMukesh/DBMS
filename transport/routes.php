@@ -1,5 +1,5 @@
 <?php
-require_once '../header.php';
+require_once dirname(__DIR__) . '/includes/header.php';
 
 if (!in_array($role, ['admin', 'staff'])) {
     header('Location: ' . BASE_URL . 'dashboard.php?error=Access Denied');
@@ -92,6 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
         <div class="table-responsive">
             <table class="table table-hover">
+                <caption class="visually-hidden">Transport routes with driver, capacity, and fee details</caption>
                 <thead class="table-light">
                     <tr>
                         <th>Route Name</th>
@@ -186,4 +187,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     </div>
 </div>
 
-<?php require_once '../footer.php'; ?>
+<?php require_once dirname(__DIR__) . '/includes/footer.php'; ?>

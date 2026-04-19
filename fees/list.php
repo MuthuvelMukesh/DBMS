@@ -1,9 +1,10 @@
 <?php
-require_once '../header.php';
+require_once dirname(__DIR__) . '/includes/header.php';
 
 $fees = [];
 $error = '';
 $schema_notice = '';
+$collect_mode = isset($_GET['collect']) && $_GET['collect'] === '1';
 
 $fees_columns = [];
 $columns_result = $conn->query("SHOW COLUMNS FROM fees");
@@ -21,7 +22,7 @@ $has_receipt_no = isset($fees_columns['receipt_no']);
 $has_created_at = isset($fees_columns['created_at']);
 
 if (!$has_paid_amount) {
-    $schema_notice = 'Legacy fees schema detected. Run db_patch_fees_paid_amount.sql to enable partial payment tracking.';
+    $schema_notice = 'Legacy fees schema detected. Run database/patches/004_fees_paid_amount.sql to enable partial payment tracking.';
 }
 
 $paid_amount_select = $has_paid_amount
@@ -108,6 +109,12 @@ if ($error === '') {
         }
     }
 }
+
+if ($collect_mode && in_array($role, ['admin'], true)) {
+    $fees = array_values(array_filter($fees, function ($fee) {
+        return ($fee['payment_status'] ?? '') !== 'Paid';
+    }));
+}
 ?>
 
 <h1 class="page-title"><i class="fas fa-money-bill-wave"></i> Fee Management</h1>
@@ -132,8 +139,15 @@ if ($error === '') {
             </div>
         <?php endif; ?>
 
+        <?php if ($collect_mode && in_array($role, ['admin'], true)): ?>
+            <div class="alert alert-info" role="alert">
+                <i class="fas fa-info-circle"></i> Select a pending or partial fee and click the <strong>Collect Payment</strong> (money) action button.
+            </div>
+        <?php endif; ?>
+
         <div class="table-responsive">
             <table class="table table-hover datatable align-middle">
+                <caption class="visually-hidden">Fee records and payment actions</caption>
                 <thead class="table-light">
                     <tr>
                         <th>Receipt No</th>
@@ -178,9 +192,9 @@ if ($error === '') {
                                 <td class="text-end">
                                     <div class="btn-group btn-group-sm">
                                         <?php if ($fee['payment_status'] != 'Paid' && in_array($role, ['admin'])): ?>
-                                        <a href="collect.php?id=<?php echo $fee['id']; ?>" class="btn btn-outline-success" title="Collect Payment"><i class="fas fa-money-bill-wave"></i></a>
+                                        <a href="collect.php?id=<?php echo $fee['id']; ?>" class="btn btn-outline-success" title="Collect Payment" aria-label="Collect fee payment for <?php echo htmlspecialchars($fee['full_name']); ?>"><i class="fas fa-money-bill-wave" aria-hidden="true"></i></a>
                                         <?php endif; ?>
-                                        <a href="receipt.php?id=<?php echo $fee['id']; ?>" class="btn btn-outline-info" title="View Receipt"><i class="fas fa-file-invoice"></i></a>
+                                        <a href="receipt.php?id=<?php echo $fee['id']; ?>" class="btn btn-outline-info" title="View Receipt" aria-label="View fee receipt for <?php echo htmlspecialchars($fee['full_name']); ?>"><i class="fas fa-file-invoice" aria-hidden="true"></i></a>
                                     </div>
                                 </td>
                             </tr>
@@ -194,4 +208,4 @@ if ($error === '') {
     </div>
 </div>
 
-<?php require_once '../footer.php'; ?>
+<?php require_once dirname(__DIR__) . '/includes/footer.php'; ?>

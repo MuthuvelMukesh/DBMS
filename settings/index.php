@@ -1,10 +1,10 @@
 <?php
-require_once dirname(__DIR__) . '/header.php';
+require_once dirname(__DIR__) . '/includes/header.php';
 
 // Check if user is admin
 if ($_SESSION['role'] !== 'admin') {
     echo "<div class='container mt-5'><div class='alert alert-danger'>Access Denied.</div></div>";
-    require_once dirname(__DIR__) . '/footer.php';
+    require_once dirname(__DIR__) . '/includes/footer.php';
     exit();
 }
 
@@ -116,13 +116,14 @@ $curr_logo = $sys_settings['logo_path'] ?? '';
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label for="school_phone" class="form-label">Phone Number</label>
-                                <input type="text" class="form-control" id="school_phone" name="school_phone" value="<?php echo htmlspecialchars($curr_phone); ?>">
+                                <input type="tel" class="form-control" id="school_phone" name="school_phone" autocomplete="tel" value="<?php echo htmlspecialchars($curr_phone); ?>">
                             </div>
                             <div class="col-md-6">
                                 <label for="school_logo" class="form-label">School Logo (Optional)</label>
-                                <input class="form-control" type="file" id="school_logo" name="school_logo" accept="image/*">
+                                <input class="form-control" type="file" id="school_logo" name="school_logo" aria-describedby="school_logo_help" accept="image/*">
+                                <div id="school_logo_help" class="form-text">Accepted formats: JPG, PNG, GIF.</div>
                                 <?php if($curr_logo): ?>
-                                    <div class="mt-2 text-muted small">Current Logo: <img src="<?php echo BASE_URL . htmlspecialchars($curr_logo); ?>" height="30" class="ms-2"></div>
+                                    <div class="mt-2 text-muted small">Current Logo: <img src="<?php echo BASE_URL . htmlspecialchars($curr_logo); ?>" height="30" class="ms-2" alt="Current school logo"></div>
                                 <?php endif; ?>
                             </div>
                         </div>
@@ -142,4 +143,4 @@ $curr_logo = $sys_settings['logo_path'] ?? '';
     </div>
 </div>
 
-<?php require_once dirname(__DIR__) . '/footer.php'; ?>
+<?php require_once dirname(__DIR__) . '/includes/footer.php'; ?>
